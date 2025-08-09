@@ -6,6 +6,9 @@ GameScene::~GameScene() {
 	delete player_;
 	delete railCamera_;
 	delete playerModel_;
+	delete skyDomeModel_;
+	delete skyDome_;
+	delete debugCamera_;
 }
 
 void GameScene::Initialize() {
@@ -35,6 +38,17 @@ void GameScene::Initialize() {
 	//プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
+	/*天球*/
+	skyDome_ = new SkyDome();
+	skyDomeModel_ = Model2::CreateFromOBJ("sphere");
+
+	skyDome_->Initialize(skyDomeModel_);
+	
+
+	// デバッグカメラの生成
+	debugCamera_ = new DebugCamera(1280, 720);
+
+
 }
 
 void GameScene::Update() {
@@ -53,6 +67,21 @@ void GameScene::Update() {
 	camera_.matProjection = railCamera_->GetCamera().matProjection;
 	// カメラ行列の転送
 	camera_.TransferMatrix();
+
+
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		camera_.matView = debugCamera_->GetCamera().matView;
+		camera_.matProjection = debugCamera_->GetCamera().matProjection;
+		// ビュープロジェクション行列の転送
+		camera_.TransferMatrix();
+	}
 	
 }
 
@@ -71,6 +100,7 @@ void GameScene::Draw() {
 
 
 	Model2::PreDraw(dxCommon->GetCommandList());
+	skyDome_->Draw(camera_);
 
 	player_->Draw(camera_);
 

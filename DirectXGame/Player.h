@@ -1,6 +1,8 @@
 #pragma once
 #include "KamataEngine.h"
 #include"Model2.h"
+#include"PlayerBullet.h"
+#include<list>
 class Player {
 public:
 
@@ -15,6 +17,9 @@ public:
 	//親となるワールドトランスフォームをセット
 	void SetParent(const KamataEngine::WorldTransform* parent);
 
+	// ワールド座標を取得
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 
 	KamataEngine::Input *input_ = nullptr;
@@ -22,5 +27,6 @@ private:
 
 	KamataEngine::Model2 *model_ = nullptr;
 	
+	std::list<PlayerBullet*> bullets_;
 
 };

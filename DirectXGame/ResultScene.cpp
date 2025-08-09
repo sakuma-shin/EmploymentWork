@@ -35,6 +35,6 @@ void ResultScene::Draw() {
 	Sprite::PostDraw();
 }
 
-ResultScene::~ResultScene() { Model2::StaticFinalize(); }
+ResultScene::~ResultScene() { Model2::StaticFinalize();}
 
 

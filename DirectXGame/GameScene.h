@@ -5,6 +5,7 @@
 #include<vector>
 #include"Player.h"
 #include"RailCamera.h"
+#include"skyDome.h"
 
 class GameScene:public IScene{
 public:
@@ -24,6 +25,12 @@ private:
 	Player* player_ = nullptr;
 	KamataEngine::Model2* playerModel_ = nullptr;
 	RailCamera* railCamera_ = nullptr;
+	SkyDome* skyDome_ = nullptr;
 
+	KamataEngine::Model2* skyDomeModel_ = nullptr;
 
+	// デバッグカメラ
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
+
+	bool isDebugCameraActive_ = false;
 };
