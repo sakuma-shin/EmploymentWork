@@ -3,6 +3,7 @@
 #include"KamataEngine.h"
 #include "Model2.h"
 #include"Easing.h"
+#include"Player.h"
 
 class TitleScene : public IScene {
 public:
@@ -36,4 +37,8 @@ private:
 	KamataEngine::Sprite* titleFontSprite_ = nullptr;
 	KamataEngine::Sprite* hitFontSprite_ = nullptr;
 
+	KamataEngine::Model2* bookOpenModel_ = nullptr;
+
+	KamataEngine::Model2* bookClosedModel_ = nullptr;
+	uint32_t OpenBookTextureHandle_ = 0u;
 };

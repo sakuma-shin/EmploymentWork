@@ -9,6 +9,9 @@ GameScene::~GameScene() {
 	delete skyDomeModel_;
 	delete skyDome_;
 	delete debugCamera_;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
 }
 
 void GameScene::Initialize() {
@@ -44,6 +47,22 @@ void GameScene::Initialize() {
 
 	skyDome_->Initialize(skyDomeModel_);
 	
+		// 敵キャラ関連
+	enemyModel_ = Model2::CreateFromOBJ("enemy");
+	enemyTextureHandle_ = TextureManager::Load("enemy.png");
+
+	Enemy* newEnemy = new Enemy();
+	// 初期化
+	Vector3 enemyPosition = {4.0f, 0.0f, 80.0f};
+	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
+
+	// 敵キャラにゲームシーンを渡す
+	newEnemy->SetGameScene(this);
+
+	// 敵キャラに自キャラのアドレスを渡す
+	newEnemy->SetPlayer(player_);
+
+	enemies_.push_back(newEnemy);
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -103,6 +122,10 @@ void GameScene::Draw() {
 	skyDome_->Draw(camera_);
 
 	player_->Draw(camera_);
+
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw(camera_);
+	}
 
 	Model2::PostDraw();
 

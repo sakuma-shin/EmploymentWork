@@ -6,6 +6,7 @@
 #include"Player.h"
 #include"RailCamera.h"
 #include"skyDome.h"
+#include"Enemy.h"
 
 class GameScene:public IScene{
 public:
@@ -26,6 +27,11 @@ private:
 	KamataEngine::Model2* playerModel_ = nullptr;
 	RailCamera* railCamera_ = nullptr;
 	SkyDome* skyDome_ = nullptr;
+
+	///*enemy関連*///
+	std::list<Enemy*> enemies_;
+	uint32_t enemyTextureHandle_ = 0u;
+	KamataEngine::Model2* enemyModel_ = nullptr;
 
 	KamataEngine::Model2* skyDomeModel_ = nullptr;
 
