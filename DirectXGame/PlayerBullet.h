@@ -14,6 +14,15 @@ public:
 
 	bool IsDead() const { return isDead_;}
 
+	float GetRadius() { return radius_; }
+
+	// ワールド座標を取得
+	KamataEngine::Vector3 GetWorldPosition();
+
+	// 衝突を検知したら呼び出されるコールバック関数
+	void OnCollision();
+
+
 private:
 
 	KamataEngine::WorldTransform worldTransform_;
@@ -23,5 +32,8 @@ private:
 	float deathTimer_= 60.0f;
 
 	bool isDead_ = false;
+
+	// 半径
+	float radius_ = 0.0f;
 
 };

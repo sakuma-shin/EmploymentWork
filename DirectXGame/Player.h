@@ -21,12 +21,31 @@ public:
 	// ワールド座標を取得
 	KamataEngine::Vector3 GetWorldPosition();
 
+	// 衝突を検知したら呼び出されるコールバック関数
+	void OnCollision();
+
+	// 弾リストを取得
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+
+	// 半径のGetter
+	float GetRadius() { return radius_; }
+
+	bool IsDead() const { return isDead_; }
+
 private:
 
 	KamataEngine::Input *input_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Model2 *model_ = nullptr;
+	// 半径
+	float radius_ = 0.0f;
+
+	const int kMaxLife = 5;
+
+	int life = 0;
+
+	bool isDead_ = false;
 	
 	std::list<PlayerBullet*> bullets_;
 	std::list<PlayerBulletParticle*> inkParticles_;

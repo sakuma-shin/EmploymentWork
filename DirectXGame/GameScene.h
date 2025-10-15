@@ -37,6 +37,11 @@ public:
 
 	void SpawnEnemy(KamataEngine::Vector3 spawnPos);
 
+	//<summary>
+	// 衝突判定と応答
+	//</summary>
+	void CheckAllCollisions();
+
 private:
 	KamataEngine::Camera camera_;
 	KamataEngine::WorldTransform worldTransform_;

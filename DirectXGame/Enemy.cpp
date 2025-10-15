@@ -95,7 +95,7 @@ void Enemy::Fire() {
 
 	// 弾を生成し初期化
 	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, BulletVelocity);
+	newBullet->Initialize(model_, worldTransform_.translation_, -BulletVelocity);
 
 	// 弾を登録する
 	gameScene_->AddEnemyBullet(newBullet);

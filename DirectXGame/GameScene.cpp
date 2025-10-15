@@ -80,6 +80,14 @@ void GameScene::Update() {
 		sceneNo = RESULT;
 	}
 
+	enemies_.remove_if([](Enemy* enemy) {
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+	});
+
 	// 敵の更新
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
@@ -124,6 +132,8 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の転送
 		camera_.TransferMatrix();
 	}
+
+	CheckAllCollisions();
 	
 }
 
@@ -148,6 +158,10 @@ void GameScene::Draw() {
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw(camera_);
+	}
+
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Draw(camera_);
 	}
 
 	Model2::PostDraw();
@@ -247,4 +261,114 @@ void GameScene::SpawnEnemy(Vector3 spawnPos) {
 	newEnemy->SetPlayer(player_);
 
 	enemies_.push_back(newEnemy);
+}
+
+void GameScene::CheckAllCollisions() {
+	// 判定対象AとBの座標
+	Vector3 posA, posB;
+
+	float radiusA, radiusB;
+
+	////自弾リストの取得
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+
+	// 敵弾リストの取得
+	const std::list<EnemyBullet*>& enemyBullets = GetBullets();
+
+#pragma region 自キャラと敵弾の当たり判定
+	// 自キャラの座標
+	posA = player_->GetWorldPosition();
+
+	// 自キャラの半径を取得
+	radiusA = player_->GetRadius();
+
+	// 自キャラと敵弾全ての当たり判定
+	for (EnemyBullet* bullet : enemyBullets) {
+		// 敵弾の座標
+		posB = bullet->GetWorldPosition();
+
+		// 敵弾の半径
+		radiusB = bullet->GetRadius();
+
+		Vector3 distance;
+		distance.x = (posA - posB).x * (posA - posB).x;
+		distance.y = (posA - posB).y * (posA - posB).y;
+		distance.z = (posA - posB).z * (posA - posB).z;
+
+		// 球と球の衝突判定
+		if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
+			// 自キャラの衝突時のコールバック関数を呼び出す
+			player_->OnCollision();
+
+			// 敵弾の衝突時コールバック関数を呼び出す
+			bullet->OnCollision();
+		}
+	}
+
+#pragma endregion
+
+#pragma region 自弾と敵キャラの当たり判定
+
+	// 敵のワールド座標を取得
+	for (Enemy* enemy : enemies_) {
+		posA = enemy->GetWorldPosition();
+		// 自キャラの半径を取得
+		radiusA = enemy->GetRadius();
+
+		// 自キャラと敵弾全ての当たり判定
+		for (PlayerBullet* bullet : playerBullets) {
+			// 自弾の座標
+			posB = bullet->GetWorldPosition();
+
+			// 自弾の半径
+			radiusB = bullet->GetRadius();
+
+			Vector3 distance;
+			distance.x = (posA - posB).x * (posA - posB).x;
+			distance.y = (posA - posB).y * (posA - posB).y;
+			distance.z = (posA - posB).z * (posA - posB).z;
+
+			// 球と球の衝突判定
+			if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
+				// 自キャラの衝突時のコールバック関数を呼び出す
+				enemy->OnCollision();
+
+				// 敵弾の衝突時コールバック関数を呼び出す
+				bullet->OnCollision();
+			}
+		}
+	}
+#pragma endregion
+
+#pragma region 自弾と敵弾の当たり判定
+
+	// 自キャラと敵弾全ての当たり判定
+	for (PlayerBullet* playerBullet : playerBullets) {
+		for (EnemyBullet* enemyBullet : enemyBullets) {
+			// 敵弾の座標
+			posA = enemyBullet->GetWorldPosition();
+			// 自弾の座標
+			posB = playerBullet->GetWorldPosition();
+
+			// 敵弾の半径
+			radiusA = enemyBullet->GetRadius();
+			// 自弾の半径
+			radiusB = playerBullet->GetRadius();
+
+			Vector3 distance;
+			distance.x = (posA - posB).x * (posA - posB).x;
+			distance.y = (posA - posB).y * (posA - posB).y;
+			distance.z = (posA - posB).z * (posA - posB).z;
+
+			// 球と球の衝突判定
+			if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
+				// 敵弾の衝突時のコールバック関数を呼び出す
+				enemyBullet->OnCollision();
+
+				// 自弾の衝突時コールバック関数を呼び出す
+				playerBullet->OnCollision();
+			}
+		}
+	}
+#pragma endregion
 }

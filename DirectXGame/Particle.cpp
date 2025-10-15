@@ -10,7 +10,7 @@ void Particle::Initialize(const Vector3& position, const Vector3& velocity, floa
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ *=0.3f ;
+	worldTransform_.scale_ *=0.1f ;
 	velocity_ = velocity;
 	lifeTime_ = lifeTime;
 	life_ = lifeTime; // 寿命を初期化

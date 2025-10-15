@@ -9,8 +9,13 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
+	radius_ = 1.5f;
 
 	input_ = Input::GetInstance();
+
+	life = kMaxLife;
+
+	isDead_ = false;
 }
 
 void Player::Update() {
@@ -26,11 +31,11 @@ void Player::Update() {
 
 	 inkParticles_.remove_if([](PlayerBulletParticle* particle) {
 		// ポインタ渡しの場合、削除後にメモリ解放も検討が必要
-		bool isDead = particle->IsDead();
-		if (isDead) {
+		if (particle->IsDead()) {
 			delete particle; // メモリを解放
+			return true; 
 		}
-		return isDead; 
+		return false; 
 	});
 
 	const float kSpeed = 0.5f;
@@ -83,6 +88,10 @@ void Player::Update() {
 		particle->Update();
 	}
 
+	if (life <= 0) {
+		isDead_ = true;
+	}
+
 	worldTransform_.UpdateMatrix();
 }
 
@@ -125,3 +134,6 @@ Vector3 Player::GetWorldPosition() {
 
 	return worldPos;
 }
+
+void Player::OnCollision() { life -= 1; }
+

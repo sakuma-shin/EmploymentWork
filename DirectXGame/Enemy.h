@@ -69,6 +69,8 @@ private:
 
 	Phase phase_ = Phase::Approach;
 
+
+
 	int32_t fireTimer_ = 0;
 
 	// 自キャラ

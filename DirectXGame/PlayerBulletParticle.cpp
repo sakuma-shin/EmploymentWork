@@ -29,7 +29,7 @@ void PlayerBulletParticle::Emit(KamataEngine::Model2* particleModel, const Kamat
 		// ランダムな方向と速度を生成（飛び散る表現）
 		float x = distribution_(randomEngine_);
 		float y = distribution_(randomEngine_);
-		float z = distribution_(randomEngine_);
+		float z = 0.0f;
 
 		// ベクトルを正規化してランダムな速さをかける
 		Vector3 randomVelocity = {x, y, z};
@@ -37,14 +37,12 @@ void PlayerBulletParticle::Emit(KamataEngine::Model2* particleModel, const Kamat
 		if (length > 0) {
 			randomVelocity.x /= length;
 			randomVelocity.y /= length;
-			randomVelocity.z /= length;
 		}
 
 		// 速度を適用
-		float speed = distribution_(randomEngine_) * 0.5f * kMaxSpeed + 0.5f * kMaxSpeed; // [0.5 * kMaxSpeed, 1.0 * kMaxSpeed] の範囲
+		float speed = distribution_(randomEngine_) * 0.5f * kMaxSpeed + 0.5f * kMaxSpeed;
 		randomVelocity.x *= speed;
 		randomVelocity.y *= speed;
-		randomVelocity.z *= speed;
 
 		// 寿命
 		float lifeTime = distribution_(randomEngine_) * 0.5f * (kMaxLife - kMinLife) + 0.5f * (kMaxLife + kMinLife);
