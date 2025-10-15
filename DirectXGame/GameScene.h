@@ -7,6 +7,7 @@
 #include"RailCamera.h"
 #include"skyDome.h"
 #include"Enemy.h"
+#include"EnemyBullet.h"
 
 class GameScene:public IScene{
 public:
@@ -15,6 +16,26 @@ public:
 	void Initialize() override;
 	void Update() override;
 	void Draw() override;
+
+	//<summary>
+	// 敵弾を追加する
+	//</summary>
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	// 弾リストを取得
+	const std::list<EnemyBullet*>& GetBullets() const { return enemyBullets_; }
+
+	//<summary>
+	// 敵発生データの読み込み
+	//</summary>
+	void LoadEnemyPopData();
+
+	//<summary>
+	// 敵発生コマンドの更新
+	//</summary>
+	void UpdateEnemyPopCommands();
+
+	void SpawnEnemy(KamataEngine::Vector3 spawnPos);
 
 private:
 	KamataEngine::Camera camera_;
@@ -34,6 +55,14 @@ private:
 	KamataEngine::Model2* enemyModel_ = nullptr;
 
 	KamataEngine::Model2* skyDomeModel_ = nullptr;
+
+	std::list<EnemyBullet*> enemyBullets_;
+
+	// 敵発生コマンド
+	std::stringstream enemyPopCommands;
+
+	int32_t spawnTimer_ = 0;
+	bool isSpawn_ = false;
 
 	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;

@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include<fstream>
 using namespace KamataEngine;
 
 GameScene::~GameScene() {
@@ -9,6 +10,7 @@ GameScene::~GameScene() {
 	delete skyDomeModel_;
 	delete skyDome_;
 	delete debugCamera_;
+	delete enemyModel_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -67,6 +69,7 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
 
+	LoadEnemyPopData();
 
 }
 
@@ -77,8 +80,28 @@ void GameScene::Update() {
 		sceneNo = RESULT;
 	}
 
+	// 敵の更新
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+	// デスフラグが立った弾を削除
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
+	// 弾の更新
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Update();
+	}
+
 	//プレイヤーアップデート
 	player_->Update();
+
+	UpdateEnemyPopCommands();
 
 	//レールカメラ更新
 	railCamera_->Update();
@@ -134,4 +157,94 @@ void GameScene::Draw() {
 
 	// 前景スプライト描画後処理
 	Sprite::PostDraw();
+}
+
+void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+	// リストに登録する
+	enemyBullets_.push_back(enemyBullet);
+}
+
+void GameScene::LoadEnemyPopData() {
+	// ファイルを開く
+	std::ifstream file;
+	file.open("Resources/EnemyData/enemyPop.csv");
+	assert(file.is_open());
+
+	// ファイルの内容を文字列ストリームにコピー
+	enemyPopCommands << file.rdbuf();
+
+	// ファイルを閉じる
+	file.close();
+}
+
+void GameScene::UpdateEnemyPopCommands() {
+
+	// 待機処理
+	if (isSpawn_) {
+		spawnTimer_--;
+		if (spawnTimer_ <= 0) {
+			// 待機完了
+			isSpawn_ = false;
+		}
+		return;
+	}
+
+	// 1行分の文字列を入れる変数
+	std::string line;
+
+	// コマンド実行ループ
+	while (getline(enemyPopCommands, line)) {
+		// 一行分の文字列をストリームに変換して解析しやすくする
+		std::istringstream line_stream(line);
+
+		std::string word;
+		//,区切りで行の先頭の文字列を取得
+		getline(line_stream, word, ',');
+		if (word.find("//") == 0) {
+			continue;
+		}
+
+		// POPコマンド
+		if (word.find("POP") == 0) {
+			// X座標
+			getline(line_stream, word, ',');
+			float x = (float)std::atof(word.c_str());
+
+			// Y座標
+			getline(line_stream, word, ',');
+			float y = (float)std::atof(word.c_str());
+
+			// Z座標
+			getline(line_stream, word, ',');
+			float z = (float)std::atof(word.c_str());
+
+			SpawnEnemy({x, y, z});
+		} else if (word.find("WAIT") == 0) {
+			getline(line_stream, word, ',');
+
+			// 待ち時間
+			int32_t waitTime = atoi(word.c_str());
+
+			// 待機開始
+			isSpawn_ = true;
+			spawnTimer_ = waitTime;
+
+			// コマンドループを抜ける
+			break;
+		}
+	}
+}
+
+void GameScene::SpawnEnemy(Vector3 spawnPos) {
+	// 敵キャラ関連
+	Enemy* newEnemy = new Enemy();
+	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, spawnPos);
+
+	// 敵キャラにゲームシーンを渡す
+	newEnemy->SetGameScene(this);
+
+	// 敵キャラに自キャラのアドレスを渡す
+	newEnemy->SetPlayer(player_);
+
+	enemies_.push_back(newEnemy);
 }

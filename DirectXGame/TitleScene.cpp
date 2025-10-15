@@ -47,6 +47,9 @@ void TitleScene::Update() {
 
 	titleFontSprite_->SetPosition({0.0f, startPos_ + (endPos_ - startPos_) * EaseOutBounce(moveTimer_/kMaxTimer)});
 
+	worldTransform_.rotation_.y += 0.05f;
+
+	worldTransform_.UpdateMatrix();
 }
 
 void TitleScene::Draw() {
@@ -80,4 +83,6 @@ TitleScene::~TitleScene() {
 	delete bgSprite_;
 	delete titleFontSprite_;
 	delete hitFontSprite_;
+	delete bookOpenModel_;
+	delete bookClosedModel_;
 }

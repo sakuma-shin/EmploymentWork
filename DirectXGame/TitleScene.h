@@ -41,4 +41,6 @@ private:
 
 	KamataEngine::Model2* bookClosedModel_ = nullptr;
 	uint32_t OpenBookTextureHandle_ = 0u;
+
+	KamataEngine::Model2* playerModel_ = nullptr;
 };

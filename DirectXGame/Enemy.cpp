@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include"Player.h"
 #include"GameScene.h"
+#include "EnemyBullet.h"
 
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -41,18 +42,17 @@ void Enemy::Update() {
 		Approach();
 
 		break;
+	}
 
-	case Phase::Leave:
-
-		Leave();
-
-		break;
+	if (worldTransform_.translation_.z <= -0.5f) {
+		isDead_ = true;
 	}
 
 	worldTransform_.UpdateMatrix();
 }
 
 void Enemy::Draw(Camera& camera) { model_->Draw(worldTransform_, camera, textureHandle_); }
+
 
 void Enemy::OnCollision() { isDead_ = true; }
 
@@ -64,11 +64,6 @@ void Enemy::Approach() {
 	// 敵の移動
 	worldTransform_.translation_ += velocity_;
 
-	// 既定の位置に到達したら離脱
-	/*if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
-	}*/
-
 	// 発射タイマーカウントダウン
 	fireTimer_--;
 	//
@@ -78,15 +73,6 @@ void Enemy::Approach() {
 		// 発射タイマーを初期化
 		fireTimer_ = kFireInterval;
 	}
-}
-
-void Enemy::Leave() {
-	// 速度の初期化
-	const float kSpeed = 0.2f;
-	velocity_ = {0.0f, kSpeed, 0.0f};
-
-	// 移動
-	worldTransform_.translation_ += velocity_;
 }
 
 void Enemy::Fire() {
@@ -103,16 +89,16 @@ void Enemy::Fire() {
 	BulletVelocity = Normalize(BulletVelocity);
 
 	BulletVelocity *= kBulletSpeed;
-
+	
 	// 速度ベクトルを敵の向きに合わせて回転させる
-	/*velocity = TransformNormal(velocity, worldTransform_.matWorld_);*/
+	BulletVelocity = TransformNormal(BulletVelocity, worldTransform_.matWorld_);
 
-	//// 弾を生成し初期化
-	//EnemyBullet* newBullet = new EnemyBullet();
-	//newBullet->Initialize(model_, worldTransform_.translation_, BulletVelocity);
+	// 弾を生成し初期化
+	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->Initialize(model_, worldTransform_.translation_, BulletVelocity);
 
-	//// 弾を登録する
-	//gameScene_->AddEnemyBullet(newBullet);
+	// 弾を登録する
+	gameScene_->AddEnemyBullet(newBullet);
 }
 
 void Enemy::PhaseInitialize() {

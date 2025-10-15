@@ -108,13 +108,16 @@
   <ItemGroup>
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="IScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model2.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="PlayerBulletParticle.cpp" />
     <ClCompile Include="RailCamera.cpp" />
     <ClCompile Include="ResultScene.cpp" />
     <ClCompile Include="skyDome.cpp" />
@@ -244,12 +247,15 @@
   <ItemGroup>
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="IScene.h" />
     <ClInclude Include="Model2.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="PlayerBulletParticle.h" />
     <ClInclude Include="RailCamera.h" />
     <ClInclude Include="ResultScene.h" />
     <ClInclude Include="skyDome.h" />
