@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include"Model2.h"
 #include"PlayerBullet.h"
+#include"PlayerBulletParticle.h"
 #include<list>
 class Player {
 public:
@@ -28,5 +29,5 @@ private:
 	KamataEngine::Model2 *model_ = nullptr;
 	
 	std::list<PlayerBullet*> bullets_;
-
+	std::list<PlayerBulletParticle*> inkParticles_;
 };

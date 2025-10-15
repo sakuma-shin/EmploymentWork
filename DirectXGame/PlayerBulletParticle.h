@@ -18,10 +18,10 @@ public:
 	bool IsDead() const { return particles_.empty(); }
 
 	private:
-	std::list<Particle> particles_;
+	std::list<Particle*> particles_;
 	KamataEngine::Model2* model_ = nullptr;
 
 	// ランダム生成用
 	std::mt19937 randomEngine_;
-	std::uniform_real_distribution<float> distribution_(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> distribution_{-1.0f, 1.0f};
 };

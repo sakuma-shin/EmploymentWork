@@ -23,7 +23,7 @@ GameManager::GameManager() {
 	sceneArr_[currentSceneNo_]->Initialize();
 }
 
-GameManager::~GameManager() {}
+GameManager::~GameManager() { }
 
 int GameManager::Run() {
 	// メインループ
