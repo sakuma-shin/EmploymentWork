@@ -24,6 +24,15 @@ void Player::Update() {
 		return false;
 	});
 
+	 inkParticles_.remove_if([](PlayerBulletParticle* particle) {
+		// ポインタ渡しの場合、削除後にメモリ解放も検討が必要
+		bool isDead = particle->IsDead();
+		if (isDead) {
+			delete particle; // メモリを解放
+		}
+		return isDead; 
+	});
+
 	const float kSpeed = 0.5f;
 	if (input_->PushKey(DIK_A)) {
 		worldTransform_.translation_.x -= kSpeed;
@@ -51,32 +60,53 @@ void Player::Update() {
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
 
 	if (input_->TriggerKey(DIK_SPACE)) {
+		//弾
 		PlayerBullet* newBullet = new PlayerBullet();
 		float bulletSpeed = 0.6f;
 		Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
 		newBullet->Initialize(model_, GetWorldPosition(), bulletVelocity);
 		bullets_.push_back(newBullet);
+
+		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
+		newParticle->Emit(model_, GetWorldPosition());
+		inkParticles_.push_back(newParticle);
 	}
+
 
 	// 弾の更新
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Update();
 	}
 
+	// 弾の更新
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Update();
+	}
+
 	worldTransform_.UpdateMatrix();
 }
 
 void Player::Draw(KamataEngine::Camera& camera) {
-	model_->Draw(worldTransform_, camera); 
+	
 
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(camera);
 	}
+
+	  for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Draw(camera);
+	}
+
+	  model_->Draw(worldTransform_, camera);
 }
 
 Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
+	}
+
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		delete particle;
 	}
 }
 

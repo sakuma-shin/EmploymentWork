@@ -5,6 +5,9 @@ void TitleScene::Initialize() {
 	Model2::StaticInitialize();
 
 	worldTransform_.Initialize();
+	worldTransform_.scale_ = {30.0f, 30.0f, 30.0f};
+	worldTransform_.translation_ = {-10.0f, -8.0f, 0.0f};
+	worldTransform_.UpdateMatrix();
 
 	camera_.Initialize();
 
@@ -15,6 +18,10 @@ void TitleScene::Initialize() {
 	bgSprite_ = Sprite::Create(bgGH, {0, 0});
 	titleFontSprite_ = Sprite::Create(titleFontGH, {0, 120.0f});
 	hitFontSprite_ = Sprite::Create(hitFontGH, {0, 600.0f});
+
+	bookClosedModel_ = Model2::CreateFromOBJ("book1_closed");
+	bookOpenModel_ = Model2::CreateFromOBJ("book1_Open");
+	OpenBookTextureHandle_ = TextureManager::Load("Book1_Open.png");
 
 	fontTimer_ = 0;
 
@@ -40,6 +47,9 @@ void TitleScene::Update() {
 
 	titleFontSprite_->SetPosition({0.0f, startPos_ + (endPos_ - startPos_) * EaseOutBounce(moveTimer_/kMaxTimer)});
 
+	worldTransform_.rotation_.y += 0.05f;
+
+	worldTransform_.UpdateMatrix();
 }
 
 void TitleScene::Draw() {
@@ -59,6 +69,8 @@ void TitleScene::Draw() {
 
 	Model2::PreDraw(dxCommon->GetCommandList());
 
+	bookOpenModel_->Draw(worldTransform_, camera_,OpenBookTextureHandle_);
+
 	Model2::PostDraw();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
@@ -71,4 +83,6 @@ TitleScene::~TitleScene() {
 	delete bgSprite_;
 	delete titleFontSprite_;
 	delete hitFontSprite_;
+	delete bookOpenModel_;
+	delete bookClosedModel_;
 }
