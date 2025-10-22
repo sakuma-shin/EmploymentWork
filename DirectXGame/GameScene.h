@@ -42,6 +42,16 @@ public:
 	//</summary>
 	void CheckAllCollisions();
 
+	/// <summary>
+	/// スタート演出
+	/// </summary>
+	void StartDirection();
+
+	/// <summary>
+	/// プレイ中の更新処置
+	/// </summary>
+	void PlayUpdate();
+
 private:
 	KamataEngine::Camera camera_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -73,4 +83,14 @@ private:
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
+
+	enum class Phase {
+		START,
+		PLAY
+	};
+
+	Phase phase_ = Phase::START;
+
+	uint32_t startTextureHandle_ = 0u;
+	KamataEngine::Sprite* startSprite_ = nullptr;
 };

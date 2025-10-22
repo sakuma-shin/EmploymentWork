@@ -1,5 +1,5 @@
 #include "GameScene.h"
-#include<fstream>
+#include <fstream>
 using namespace KamataEngine;
 
 GameScene::~GameScene() {
@@ -14,6 +14,10 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+
+	for (EnemyBullet* enemyBullet : enemyBullets_) {
+		delete enemyBullet;
+	}
 }
 
 void GameScene::Initialize() {
@@ -26,130 +30,80 @@ void GameScene::Initialize() {
 
 	input_ = Input::GetInstance();
 
-	
 	/*プレイヤー関連初期化*/
 	player_ = new Player();
 	playerModel_ = Model2::CreateFromOBJ("player");
-	Vector3 playerPosition = Vector3(0.0f, 0.0f,20.0f);
-	player_->Initialize(playerModel_,playerPosition);
+	Vector3 playerPosition = Vector3(0.0f, 0.0f, 35.0f);
+	player_->Initialize(playerModel_, playerPosition);
 
 	/*レールカメラ初期化*/
 	railCamera_ = new RailCamera();
 	Vector3 railCameraPos = playerPosition;
-	railCameraPos.z -= 25.0f;
+	railCameraPos.z = 200.0f;
 	Vector3 railCameraRot = {0.0f, 0.0f, 0.0f};
-	railCamera_->Initialize(railCameraPos,railCameraRot);
+	railCamera_->Initialize(railCameraPos, railCameraRot);
 
-	//プレイヤーとレールカメラの親子付け
+	// プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
-
 	/*天球*/
 	skyDome_ = new SkyDome();
 	skyDomeModel_ = Model2::CreateFromOBJ("sphere");
 
 	skyDome_->Initialize(skyDomeModel_);
-	
-		// 敵キャラ関連
+
+	// 敵キャラ関連
 	enemyModel_ = Model2::CreateFromOBJ("enemy");
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
-	Enemy* newEnemy = new Enemy();
-	// 初期化
-	Vector3 enemyPosition = {4.0f, 0.0f, 80.0f};
-	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
+	startTextureHandle_ = TextureManager::Load("startFont.png");
+	startSprite_ = Sprite::Create(startTextureHandle_, {0, 120.0f});
 
-	// 敵キャラにゲームシーンを渡す
-	newEnemy->SetGameScene(this);
+	/*Enemy* newEnemy = new Enemy();*/
+	//// 初期化
+	// Vector3 enemyPosition = {4.0f, 0.0f, 80.0f};
+	// newEnemy->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
 
-	// 敵キャラに自キャラのアドレスを渡す
-	newEnemy->SetPlayer(player_);
+	//// 敵キャラにゲームシーンを渡す
+	// newEnemy->SetGameScene(this);
 
-	enemies_.push_back(newEnemy);
+	//// 敵キャラに自キャラのアドレスを渡す
+	// newEnemy->SetPlayer(player_);
+
+	// enemies_.push_back(newEnemy);
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
 
 	LoadEnemyPopData();
 
+	phase_ = Phase::START;
 }
 
 void GameScene::Update() {
+	switch (phase_) {
+	case Phase::START:
+		StartDirection();
 
-	if (input_->TriggerKey(DIK_RETURN)) {
+		break;
 
-		sceneNo = RESULT;
+	case Phase::PLAY:
+		PlayUpdate();
+
+		break;
 	}
-
-	enemies_.remove_if([](Enemy* enemy) {
-		if (enemy->IsDead()) {
-			delete enemy;
-			return true;
-		}
-		return false;
-	});
-
-	// 敵の更新
-	for (Enemy* enemy : enemies_) {
-		enemy->Update();
-	}
-	// デスフラグが立った弾を削除
-	enemyBullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
-
-	// 弾の更新
-	for (EnemyBullet* bullet : enemyBullets_) {
-		bullet->Update();
-	}
-
-	//プレイヤーアップデート
-	player_->Update();
-
-	UpdateEnemyPopCommands();
-
-	//レールカメラ更新
-	railCamera_->Update();
-	camera_.matView = railCamera_->GetCamera().matView;
-	camera_.matProjection = railCamera_->GetCamera().matProjection;
-	// カメラ行列の転送
-	camera_.TransferMatrix();
-
-
-	#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_0)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-#endif
-
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_.matView = debugCamera_->GetCamera().matView;
-		camera_.matProjection = debugCamera_->GetCamera().matProjection;
-		// ビュープロジェクション行列の転送
-		camera_.TransferMatrix();
-	}
-
-	CheckAllCollisions();
-	
 }
 
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	//後景スプライト描画前処理
+	// 後景スプライト描画前処理
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
-
-	//後景スプライト描画後処理
+	// 後景スプライト描画後処理
 	Sprite::PostDraw();
 
-	//深度クリア
+	// 深度クリア
 	dxCommon->ClearDepthBuffer();
-
 
 	Model2::PreDraw(dxCommon->GetCommandList());
 	skyDome_->Draw(camera_);
@@ -166,10 +120,14 @@ void GameScene::Draw() {
 
 	Model2::PostDraw();
 
-	//前景スプライト描画前処理
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
-	// 前景スプライト描画後処理
+	if (phase_ == Phase::START) {
+		if (railCamera_->GetTimer() >= 90 && railCamera_->GetTimer() <= 120) {
+			startSprite_->Draw();
+		}
+	}
+
 	Sprite::PostDraw();
 }
 
@@ -250,7 +208,7 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::SpawnEnemy(Vector3 spawnPos) {
-	// 敵キャラ関連
+	// 敵キャラ初期化
 	Enemy* newEnemy = new Enemy();
 	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, spawnPos);
 
@@ -269,7 +227,7 @@ void GameScene::CheckAllCollisions() {
 
 	float radiusA, radiusB;
 
-	////自弾リストの取得
+	// 自弾リストの取得
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 
 	// 敵弾リストの取得
@@ -312,7 +270,7 @@ void GameScene::CheckAllCollisions() {
 	// 敵のワールド座標を取得
 	for (Enemy* enemy : enemies_) {
 		posA = enemy->GetWorldPosition();
-		// 自キャラの半径を取得
+		// 敵キャラの半径を取得
 		radiusA = enemy->GetRadius();
 
 		// 自キャラと敵弾全ての当たり判定
@@ -371,4 +329,114 @@ void GameScene::CheckAllCollisions() {
 		}
 	}
 #pragma endregion
+
+#pragma region 自キャラと敵キャラの当たり判定
+	// 自キャラの座標
+	posA = player_->GetWorldPosition();
+
+	// 自キャラの半径を取得
+	radiusA = player_->GetRadius();
+
+	for (Enemy* enemy : enemies_) {
+		// 自キャラの座標
+		posB = enemy->GetWorldPosition();
+
+		// 自キャラの半径を取得
+		radiusB = enemy->GetRadius();
+
+		//距離を取得
+		Vector3 distance;
+		distance.x = (posA.x - posB.x) * (posA.x - posB.x);
+		distance.y = (posA.y - posB.y) * (posA.y - posB.y);
+		distance.z = (posA.z - posB.z) * (posA.z - posB.z);
+
+		// 球と球の衝突判定
+		if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
+			// 敵弾の衝突時のコールバック関数を呼び出す
+			enemy->OnCollision();
+
+			// 自弾の衝突時コールバック関数を呼び出す
+			player_->OnCollision();
+		}
+
+	}
+
+}
+
+void GameScene::StartDirection() {
+
+	railCamera_->StartDirection();
+	camera_.matView = railCamera_->GetCamera().matView;
+	camera_.matProjection = railCamera_->GetCamera().matProjection;
+	// カメラ行列の転送
+	camera_.TransferMatrix();
+
+	if (railCamera_->IsFinishedStartDirection()) {
+		phase_ = Phase::PLAY;
+	}
+}
+
+void GameScene::PlayUpdate() {
+	if (input_->TriggerKey(DIK_RETURN)) {
+		sceneNo = RESULT;
+	}
+
+	if (player_->IsDead()) {
+
+		sceneNo = RESULT;
+	}
+
+	enemies_.remove_if([](Enemy* enemy) {
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+	});
+
+	// 敵の更新
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+	// デスフラグが立った弾を削除
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
+	// 弾の更新
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Update();
+	}
+
+	// プレイヤーアップデート
+	player_->Update();
+
+	UpdateEnemyPopCommands();
+
+	// レールカメラ更新
+	railCamera_->Update();
+	camera_.matView = railCamera_->GetCamera().matView;
+	camera_.matProjection = railCamera_->GetCamera().matProjection;
+	// カメラ行列の転送
+	camera_.TransferMatrix();
+
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		camera_.matView = debugCamera_->GetCamera().matView;
+		camera_.matProjection = debugCamera_->GetCamera().matProjection;
+		// ビュープロジェクション行列の転送
+		camera_.TransferMatrix();
+	}
+
+	CheckAllCollisions();
 }

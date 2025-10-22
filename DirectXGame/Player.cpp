@@ -9,13 +9,16 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	radius_ = 1.5f;
+	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
+	radius_ = 4.0f;
 
 	input_ = Input::GetInstance();
 
 	life = kMaxLife;
 
 	isDead_ = false;
+
+	worldTransform_.UpdateMatrix();
 }
 
 void Player::Update() {
@@ -30,9 +33,8 @@ void Player::Update() {
 	});
 
 	 inkParticles_.remove_if([](PlayerBulletParticle* particle) {
-		// ポインタ渡しの場合、削除後にメモリ解放も検討が必要
 		if (particle->IsDead()) {
-			delete particle; // メモリを解放
+			delete particle; 
 			return true; 
 		}
 		return false; 
@@ -73,7 +75,7 @@ void Player::Update() {
 		bullets_.push_back(newBullet);
 
 		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
-		newParticle->Emit(model_, GetWorldPosition());
+		newParticle->Initialize(model_, GetWorldPosition());
 		inkParticles_.push_back(newParticle);
 	}
 
@@ -135,5 +137,7 @@ Vector3 Player::GetWorldPosition() {
 	return worldPos;
 }
 
-void Player::OnCollision() { life -= 1; }
+void Player::OnCollision() { 
+	life -= 1;
+}
 

@@ -5,15 +5,13 @@ using namespace MathUtility;
 /// <summary>
 /// 発生
 /// </summary>
-/// <param name="particleModel"></param>
-/// <param name="emitterPosition"></param>
-void PlayerBulletParticle::Emit(KamataEngine::Model2* particleModel, const KamataEngine::Vector3& emitterPosition) {
+void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const KamataEngine::Vector3& emitterPosition) {
 
 	model_ = particleModel;
 
 	particles_.clear(); // 既にパーティクルが存在する場合はクリア
 
-	// 発生させるパーティクルの数
+	// パーティクルの数
 	const int kNumParticles = 20;
 
 	// 速度の最大値
@@ -26,12 +24,12 @@ void PlayerBulletParticle::Emit(KamataEngine::Model2* particleModel, const Kamat
 	randomEngine_.seed(static_cast<unsigned int>(std::time(nullptr)));
 
 	for (int i = 0; i < kNumParticles; ++i) {
-		// ランダムな方向と速度を生成（飛び散る表現）
+		// 方向と速度を生成
 		float x = distribution_(randomEngine_);
 		float y = distribution_(randomEngine_);
 		float z = 0.0f;
 
-		// ベクトルを正規化してランダムな速さをかける
+		// ベクトルを正規化
 		Vector3 randomVelocity = {x, y, z};
 		float length = std::sqrt(randomVelocity.x * randomVelocity.x + randomVelocity.y * randomVelocity.y + randomVelocity.z * randomVelocity.z);
 		if (length > 0) {
@@ -47,7 +45,7 @@ void PlayerBulletParticle::Emit(KamataEngine::Model2* particleModel, const Kamat
 		// 寿命
 		float lifeTime = distribution_(randomEngine_) * 0.5f * (kMaxLife - kMinLife) + 0.5f * (kMaxLife + kMinLife);
 
-		// パーティクルを生成し、リストに追加
+		// パーティクルを生成
 		Particle* newParticle = new Particle();
 		newParticle->Initialize(emitterPosition, randomVelocity, lifeTime);
 
