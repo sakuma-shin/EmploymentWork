@@ -417,8 +417,10 @@ void GameScene::PlayUpdate() {
 
 	UpdateEnemyPopCommands();
 
-	// レールカメラ更新
-	railCamera_->Update();
+	if (player_->GetState() == Player::State::kPlay) {
+		// レールカメラ更新
+		railCamera_->Update();
+	}
 	camera_.matView = railCamera_->GetCamera().matView;
 	camera_.matProjection = railCamera_->GetCamera().matProjection;
 	// カメラ行列の転送
@@ -440,3 +442,5 @@ void GameScene::PlayUpdate() {
 
 	CheckAllCollisions();
 }
+
+

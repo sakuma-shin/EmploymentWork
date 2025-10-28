@@ -1,4 +1,5 @@
 #include "RailCamera.h"
+#include"Player.h"
 
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -19,6 +20,7 @@ void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rot
 }
 
 void RailCamera::Update() {
+
 	Vector3 velocity = {0.0f, 0.0f, 0.2f};
 	worldTransform_.translation_ += velocity;
 

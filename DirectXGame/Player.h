@@ -1,21 +1,23 @@
 #pragma once
 #include "KamataEngine.h"
-#include"Model2.h"
-#include"PlayerBullet.h"
-#include"PlayerBulletParticle.h"
-#include<list>
+#include "Model2.h"
+#include "PlayerBullet.h"
+#include "PlayerBulletParticle.h"
+#include <list>
 class Player {
 public:
 
-	void Initialize(KamataEngine::Model2 *model,KamataEngine::Vector3 position);
+	enum class State { kPlay, kDeathRotate, kDeathDrop, kDeathDisappear };
+
+	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position);
 
 	void Update();
 
-	void Draw(KamataEngine::Camera &camera);
+	void Draw(KamataEngine::Camera& camera);
 
 	~Player();
 
-	//親となるワールドトランスフォームをセット
+	// 親となるワールドトランスフォームをセット
 	void SetParent(const KamataEngine::WorldTransform* parent);
 
 	// ワールド座標を取得
@@ -32,12 +34,21 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
-private:
+	void PlayUpdate();
 
-	KamataEngine::Input *input_ = nullptr;
+	void DeathRotate();
+
+	void DeathDrop();
+
+	void DeathDisappear();
+
+	State GetState() const { return state_; }
+
+private:
+	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
 
-	KamataEngine::Model2 *model_ = nullptr;
+	KamataEngine::Model2* model_ = nullptr;
 	// 半径
 	float radius_ = 0.0f;
 
@@ -46,7 +57,19 @@ private:
 	int life = 0;
 
 	bool isDead_ = false;
-	
+
 	std::list<PlayerBullet*> bullets_;
 	std::list<PlayerBulletParticle*> inkParticles_;
+
+	State state_ = State::kPlay;
+
+	float deathTimer_ = 0.0f;
+	
+	const float MaxDeathTimer[3] = {
+	    // 回転するフレーム
+	    60.0f,
+	    // 落ちるフレーム
+	    60.0f,
+	    // 縮まるフレーム
+	    60.0f };
 };

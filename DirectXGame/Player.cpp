@@ -1,5 +1,6 @@
 #include "Player.h"
 #include <cassert>
+#include "Easing.h"
 
 using namespace KamataEngine;
 
@@ -19,10 +20,76 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	isDead_ = false;
 
 	worldTransform_.UpdateMatrix();
+
+	state_ = State::kPlay;
+
+	deathTimer_ = 0.0f;
 }
 
 void Player::Update() {
 
+	switch (state_) {
+	case State::kPlay:
+		PlayUpdate();
+
+		break;
+
+	case State::kDeathRotate:
+		DeathRotate();
+		break;
+	case State::kDeathDrop:
+		DeathDrop();
+		break;
+	case State::kDeathDisappear:
+		DeathDisappear();
+		break;
+	}
+
+	worldTransform_.UpdateMatrix();
+}
+
+void Player::Draw(KamataEngine::Camera& camera) {
+
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(camera);
+	}
+
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Draw(camera);
+	}
+
+	model_->Draw(worldTransform_, camera);
+}
+
+Player::~Player() {
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
+
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		delete particle;
+	}
+}
+
+void Player::SetParent(const KamataEngine::WorldTransform* parent) {
+	// 親子関係を結ぶ
+	worldTransform_.parent_ = parent;
+}
+
+Vector3 Player::GetWorldPosition() {
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+void Player::OnCollision() { life -= 1; }
+
+void Player::PlayUpdate() {
 	// デスフラグが立った弾を削除
 	bullets_.remove_if([](PlayerBullet* bullet) {
 		if (bullet->IsDead()) {
@@ -32,12 +99,12 @@ void Player::Update() {
 		return false;
 	});
 
-	 inkParticles_.remove_if([](PlayerBulletParticle* particle) {
+	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
 		if (particle->IsDead()) {
-			delete particle; 
-			return true; 
+			delete particle;
+			return true;
 		}
-		return false; 
+		return false;
 	});
 
 	const float kSpeed = 0.5f;
@@ -57,6 +124,10 @@ void Player::Update() {
 		worldTransform_.translation_.y -= kSpeed;
 	}
 
+	if (input_->PushKey(DIK_R)) {
+		state_=State::kDeathRotate;
+	}
+
 	const float kMoveLimitX = 12.0f;
 	const float kMoveLimitY = 8.0f;
 
@@ -67,7 +138,7 @@ void Player::Update() {
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
 
 	if (input_->TriggerKey(DIK_SPACE)) {
-		//弾
+		// 弾
 		PlayerBullet* newBullet = new PlayerBullet();
 		float bulletSpeed = 0.6f;
 		Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
@@ -78,7 +149,6 @@ void Player::Update() {
 		newParticle->Initialize(model_, GetWorldPosition());
 		inkParticles_.push_back(newParticle);
 	}
-
 
 	// 弾の更新
 	for (PlayerBullet* bullet : bullets_) {
@@ -91,53 +161,55 @@ void Player::Update() {
 	}
 
 	if (life <= 0) {
-		isDead_ = true;
+		state_ = State::kDeathRotate;
 	}
 
 	worldTransform_.UpdateMatrix();
 }
 
-void Player::Draw(KamataEngine::Camera& camera) {
-	
+void Player::DeathRotate() { 
+	float startRot = worldTransform_.rotation_.x;
 
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Draw(camera);
+	float endRot = 1.0f;
+
+	deathTimer_++;
+
+	if (deathTimer_ <= MaxDeathTimer[0]) {
+		deathTimer_++;
+		worldTransform_.rotation_.x = startRot + (endRot - startRot) * EaseInSine(deathTimer_ / MaxDeathTimer[0]);
+	} else {
+		deathTimer_ = 0.0f;
+		state_ = State::kDeathDrop;
 	}
 
-	  for (PlayerBulletParticle* particle : inkParticles_) {
-		particle->Draw(camera);
+}
+
+void Player::DeathDrop() { 
+	float startPos = worldTransform_.translation_.y;
+
+	float endPos = -0.0f;
+
+	if (deathTimer_ <= MaxDeathTimer[1]) {
+		deathTimer_++;
+		worldTransform_.translation_.y = startPos + (endPos - startPos) * EaseInSine(deathTimer_ / MaxDeathTimer[1]);
+	} else {
+		deathTimer_ = 0.0f;
+		state_ = State::kDeathDisappear;
 	}
 
-	  model_->Draw(worldTransform_, camera);
 }
 
-Player::~Player() {
-	for (PlayerBullet* bullet : bullets_) {
-		delete bullet;
+void Player::DeathDisappear() {
+	Vector3 startScale = worldTransform_.scale_;
+
+	Vector3 endScale = {0.0f,0.0f,0.0f};
+
+	if (deathTimer_ <= MaxDeathTimer[1]) {
+		deathTimer_++;
+		worldTransform_.scale_.x = startScale.x + (endScale.x - startScale.x) * EaseInBounce(deathTimer_ / MaxDeathTimer[2]);
+		worldTransform_.scale_.y = startScale.y + (endScale.y - startScale.y) * EaseInBounce(deathTimer_ / MaxDeathTimer[2]);
+		worldTransform_.scale_.z = startScale.z + (endScale.z - startScale.z) * EaseInBounce(deathTimer_ / MaxDeathTimer[2]);
+	} else {
+		isDead_ = true;
 	}
-
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		delete particle;
-	}
 }
-
-void Player::SetParent(const KamataEngine::WorldTransform* parent) {
-//親子関係を結ぶ
-	worldTransform_.parent_ = parent;
-}
-
-Vector3 Player::GetWorldPosition() {
-	// ワールド座標を入れる変数
-	Vector3 worldPos;
-	// ワールド行列の平行移動成分を取得
-	worldPos.x = worldTransform_.matWorld_.m[3][0];
-	worldPos.y = worldTransform_.matWorld_.m[3][1];
-	worldPos.z = worldTransform_.matWorld_.m[3][2];
-
-	return worldPos;
-}
-
-void Player::OnCollision() { 
-	life -= 1;
-}
-
