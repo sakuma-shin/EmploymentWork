@@ -24,6 +24,8 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	state_ = State::kPlay;
 
 	deathTimer_ = 0.0f;
+
+	color_.Initialize();
 }
 
 void Player::Update() {
@@ -36,6 +38,7 @@ void Player::Update() {
 
 	case State::kDeathRotate:
 		DeathRotate();
+		color_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 		break;
 	case State::kDeathDrop:
 		DeathDrop();
@@ -58,7 +61,7 @@ void Player::Draw(KamataEngine::Camera& camera) {
 		particle->Draw(camera);
 	}
 
-	model_->Draw(worldTransform_, camera);
+	model_->Draw(worldTransform_, camera,&color_);
 }
 
 Player::~Player() {
@@ -187,7 +190,7 @@ void Player::DeathRotate() {
 void Player::DeathDrop() { 
 	float startPos = worldTransform_.translation_.y;
 
-	float endPos = -0.0f;
+	float endPos = startPos;
 
 	if (deathTimer_ <= MaxDeathTimer[1]) {
 		deathTimer_++;

@@ -72,4 +72,6 @@ private:
 	    60.0f,
 	    // 縮まるフレーム
 	    60.0f };
+
+	KamataEngine::ObjectColor color_;
 };
