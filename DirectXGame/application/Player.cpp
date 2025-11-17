@@ -38,7 +38,7 @@ void Player::Update() {
 
 	case State::kDeathRotate:
 		DeathRotate();
-		color_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
+		/*color_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});*/
 		break;
 	case State::kDeathDrop:
 		DeathDrop();
@@ -127,8 +127,8 @@ void Player::PlayUpdate() {
 		worldTransform_.translation_.y -= kSpeed;
 	}
 
-	if (input_->PushKey(DIK_R)) {
-		state_=State::kDeathRotate;
+	if (input_->TriggerKey(DIK_R)) {
+		life -=1;
 	}
 
 	const float kMoveLimitX = 12.0f;
@@ -167,7 +167,11 @@ void Player::PlayUpdate() {
 		state_ = State::kDeathRotate;
 	}
 
-	worldTransform_.UpdateMatrix();
+	float color = 1.0f;
+
+	color = static_cast<float>(life) / kMaxLife;
+
+	color_.SetColor({color, color, color, 1.0f});
 }
 
 void Player::DeathRotate() { 

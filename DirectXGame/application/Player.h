@@ -67,9 +67,9 @@ private:
 	
 	const float MaxDeathTimer[3] = {
 	    // 回転するフレーム
-	    60.0f,
+	    30.0f,
 	    // 落ちるフレーム
-	    60.0f,
+	    30.0f,
 	    // 縮まるフレーム
 	    60.0f };
 
