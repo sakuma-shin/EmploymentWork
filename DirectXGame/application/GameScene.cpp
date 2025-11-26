@@ -77,6 +77,12 @@ void GameScene::Initialize() {
 	LoadEnemyPopData();
 
 	phase_ = Phase::START;
+
+	//クリア演出
+	clearTimer_ = 120;
+	clearTextureHandle_ = TextureManager::Load("white1x1.png");
+	isClear = false;
+	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
 }
 
 void GameScene::Update() {
@@ -126,6 +132,10 @@ void GameScene::Draw() {
 		if (railCamera_->GetTimer() >= 90 && railCamera_->GetTimer() <= 120) {
 			startSprite_->Draw();
 		}
+	}
+
+	if (isClear) {
+		clearSprite_->Draw();
 	}
 
 	Sprite::PostDraw();
@@ -381,9 +391,26 @@ void GameScene::PlayUpdate() {
 		sceneNo = RESULT;
 	}
 
+	if (input_->TriggerKey(DIK_C)) {
+		isClear=true;
+	}
+
 	if (player_->IsDead()) {
 
 		sceneNo = RESULT;
+	}
+
+	if (isClear) {
+
+		clearTimer_--;
+		clearSprite_->SetSize({1280.0f, 720.0f});
+
+		Vector4 color = {1.0f, 1.0f, 1.0f,1.0f- float(clearTimer_) / 120.0f};
+		clearSprite_->SetColor(color);
+
+		if (clearTimer_ <= 0.0f) {
+			sceneNo = RESULT;
+		}
 	}
 
 	enemies_.remove_if([](Enemy* enemy) {

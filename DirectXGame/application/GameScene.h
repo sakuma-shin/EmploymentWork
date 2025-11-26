@@ -93,4 +93,10 @@ private:
 
 	uint32_t startTextureHandle_ = 0u;
 	KamataEngine::Sprite* startSprite_ = nullptr;
+
+	uint32_t clearTextureHandle_ = 0u;
+	int clearTimer_ = 0;
+	KamataEngine::Sprite* clearSprite_ = nullptr;
+
+	bool isClear = false;
 };
