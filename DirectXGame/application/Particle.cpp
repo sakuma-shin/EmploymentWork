@@ -6,14 +6,17 @@ using namespace KamataEngine;
 using namespace MathUtility;
 
 void Particle::Initialize(const Vector3& position, const Vector3& velocity, float lifeTime) {
-	model_ = Model2::CreateSphere(4, 4);
+	model_ = Model2::CreateFromOBJ("playerBullet");
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ *=0.1f ;
+	worldTransform_.scale_ *=3.0f ;
 	velocity_ = velocity;
 	lifeTime_ = lifeTime;
 	life_ = lifeTime; // 寿命を初期化
+
+	color_.Initialize();
+	color_.SetColor({0.29f, 0.0f, 0.42f, 1.0f});
 }
 
 void Particle::Update() {
@@ -35,6 +38,6 @@ void Particle::Update() {
 
 void Particle::Draw(Camera& camera) {
 	if (model_) {
-		model_->Draw(worldTransform_, camera);
+		model_->Draw(worldTransform_, camera,&color_);
 	}
 }

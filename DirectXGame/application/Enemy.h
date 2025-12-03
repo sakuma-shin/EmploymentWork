@@ -14,7 +14,7 @@ public:
 	Enemy();
 	~Enemy();
 
-	void Initialize(KamataEngine::Model2* model, uint32_t textureHandle, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model2* model, uint32_t textureHandle, const KamataEngine::Vector3& position,KamataEngine::Model2* bulletModel);
 
 	void Update();
 
@@ -48,9 +48,9 @@ public:
 	KamataEngine::Vector3 GetWorldPosition();
 
 	// 発射感覚
-	static const int kFireInterval = 60;
+	static const int kFireInterval = 180;
 
-	float GetRadius() { return radius_; }
+	KamataEngine::Vector3 GetSize() { return size_; }
 
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
@@ -69,18 +69,23 @@ private:
 
 	Phase phase_ = Phase::Approach;
 
-
+	static const int kLeaveDuration = 60;
+	int32_t leaveTimer_ = 0;
+	KamataEngine::Vector3 initialTranslation_ = {};
+	float flyUpHeight_ = 1.5f; 
 
 	int32_t fireTimer_ = 0;
 
 	// 自キャラ
 	Player* player_ = nullptr;
 
-	// 半径
-	float radius_ = 0.0f;
+	//サイズ
+	KamataEngine::Vector3 size_ = {};
 
 	// ゲームシーン
 	GameScene* gameScene_ = nullptr;
 
 	bool isDead_ = false;
+
+	KamataEngine::Model2* bulletModel_;
 };

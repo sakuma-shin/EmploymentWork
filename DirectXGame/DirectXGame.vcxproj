@@ -63,7 +63,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Projects\Employment work\KamataEngine\DirectXGame\application;"C:\Projects\Employment work\KamataEngine\DirectXGame\engine";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -86,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Projects\Employment work\KamataEngine\DirectXGame\application;"C:\Projects\Employment work\KamataEngine\DirectXGame\engine";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -106,23 +106,25 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Easing.cpp" />
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="EnemyBullet.cpp" />
-    <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="IScene.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model2.cpp" />
-    <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerBullet.cpp" />
-    <ClCompile Include="PlayerBulletParticle.cpp" />
-    <ClCompile Include="RailCamera.cpp" />
-    <ClCompile Include="ResultScene.cpp" />
-    <ClCompile Include="skyDome.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
-    <ClCompile Include="WorldTransformEX.cpp" />
+    <ClCompile Include="application\Easing.cpp" />
+    <ClCompile Include="application\Enemy.cpp" />
+    <ClCompile Include="application\EnemyBullet.cpp" />
+    <ClCompile Include="application\ExMathUtility.cpp" />
+    <ClCompile Include="application\GameManager.cpp" />
+    <ClCompile Include="application\GameScene.cpp" />
+    <ClCompile Include="application\IScene.cpp" />
+    <ClCompile Include="application\main.cpp" />
+    <ClCompile Include="application\Wall.cpp" />
+    <ClCompile Include="engine\Model2.cpp" />
+    <ClCompile Include="application\Particle.cpp" />
+    <ClCompile Include="application\Player.cpp" />
+    <ClCompile Include="application\PlayerBullet.cpp" />
+    <ClCompile Include="application\PlayerBulletParticle.cpp" />
+    <ClCompile Include="application\RailCamera.cpp" />
+    <ClCompile Include="application\ResultScene.cpp" />
+    <ClCompile Include="application\skyDome.cpp" />
+    <ClCompile Include="application\TitleScene.cpp" />
+    <ClCompile Include="engine\WorldTransformEX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\BoxFilterPS.hlsl">
@@ -245,21 +247,23 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Easing.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EnemyBullet.h" />
-    <ClInclude Include="GameManager.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="IScene.h" />
-    <ClInclude Include="Model2.h" />
-    <ClInclude Include="Particle.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayerBullet.h" />
-    <ClInclude Include="PlayerBulletParticle.h" />
-    <ClInclude Include="RailCamera.h" />
-    <ClInclude Include="ResultScene.h" />
-    <ClInclude Include="skyDome.h" />
-    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="application\Easing.h" />
+    <ClInclude Include="application\Enemy.h" />
+    <ClInclude Include="application\EnemyBullet.h" />
+    <ClInclude Include="application\ExMathUtility.h" />
+    <ClInclude Include="application\GameManager.h" />
+    <ClInclude Include="application\GameScene.h" />
+    <ClInclude Include="application\IScene.h" />
+    <ClInclude Include="application\Wall.h" />
+    <ClInclude Include="engine\Model2.h" />
+    <ClInclude Include="application\Particle.h" />
+    <ClInclude Include="application\Player.h" />
+    <ClInclude Include="application\PlayerBullet.h" />
+    <ClInclude Include="application\PlayerBulletParticle.h" />
+    <ClInclude Include="application\RailCamera.h" />
+    <ClInclude Include="application\ResultScene.h" />
+    <ClInclude Include="application\skyDome.h" />
+    <ClInclude Include="application\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

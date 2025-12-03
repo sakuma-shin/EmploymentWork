@@ -6,7 +6,7 @@
 class PlayerBulletParticle {
 public:
 	// 全パーティクル生成（爆発的な発生）
-	void Emit(KamataEngine::Model2* particleModel, const KamataEngine::Vector3& emitterPosition);
+	void Initialize(KamataEngine::Model2* particleModel, const KamataEngine::Vector3& emitterPosition);
 
 	// 更新
 	void Update();

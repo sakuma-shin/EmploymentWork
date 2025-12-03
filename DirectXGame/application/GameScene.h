@@ -8,6 +8,8 @@
 #include"skyDome.h"
 #include"Enemy.h"
 #include"EnemyBullet.h"
+#include"Wall.h"
+#include"ExMathUtility.h"
 
 class GameScene:public IScene{
 public:
@@ -37,10 +39,22 @@ public:
 
 	void SpawnEnemy(KamataEngine::Vector3 spawnPos);
 
+	void SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale);
+
 	//<summary>
 	// 衝突判定と応答
 	//</summary>
 	void CheckAllCollisions();
+
+	/// <summary>
+	/// スタート演出
+	/// </summary>
+	void StartDirection();
+
+	/// <summary>
+	/// プレイ中の更新処置
+	/// </summary>
+	void PlayUpdate();
 
 private:
 	KamataEngine::Camera camera_;
@@ -69,8 +83,33 @@ private:
 	int32_t spawnTimer_ = 0;
 	bool isSpawn_ = false;
 
+	// 壁
+	std::list<Wall*> walls_;
+	KamataEngine::Model2* wallModel_ = nullptr;
+	uint32_t wallTextureHandle_ = 0u;
+
 	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
+
+	enum class Phase {
+		START,
+		PLAY
+	};
+
+	Phase phase_ = Phase::START;
+
+	uint32_t startTextureHandle_ = 0u;
+	KamataEngine::Sprite* startSprite_ = nullptr;
+
+	uint32_t clearTextureHandle_ = 0u;
+	int clearTimer_ = 0;
+	KamataEngine::Sprite* clearSprite_ = nullptr;
+
+	KamataEngine::Model2* playerBulletModel_ = nullptr;
+
+	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
+
+	bool isClear = false;
 };
