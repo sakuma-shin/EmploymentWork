@@ -29,7 +29,7 @@ void Enemy::Initialize(KamataEngine::Model2* model, uint32_t textureHandle, cons
 
 	PhaseInitialize();
 
-	size_ = {3.0f, 2.0f, 1.0f};
+	size_ = {5.0f, 4.0f, 1.0f};
 
 	worldTransform_.UpdateMatrix();
 }
