@@ -11,7 +11,7 @@ public:
 
 	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position);
 
-	void Update();
+	void Update(KamataEngine::Model2* model);
 
 	void Draw(KamataEngine::Camera& camera);
 
@@ -30,11 +30,11 @@ public:
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
 	// 半径のGetter
-	float GetRadius() { return radius_; }
+	KamataEngine::Vector3 GetSize() { return size_; }
 
 	bool IsDead() const { return isDead_; }
 
-	void PlayUpdate();
+	void PlayUpdate(KamataEngine::Model2* model);
 
 	void DeathRotate();
 
@@ -49,8 +49,9 @@ private:
 	KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Model2* model_ = nullptr;
-	// 半径
-	float radius_ = 0.0f;
+	
+	//大きさ
+	KamataEngine::Vector3 size_ = {};
 
 	const int kMaxLife = 5;
 
@@ -59,7 +60,6 @@ private:
 	bool isDead_ = false;
 
 	std::list<PlayerBullet*> bullets_;
-	std::list<PlayerBulletParticle*> inkParticles_;
 
 	State state_ = State::kPlay;
 

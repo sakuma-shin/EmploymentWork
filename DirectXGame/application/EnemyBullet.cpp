@@ -11,6 +11,7 @@ void EnemyBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::Ve
 	model_ = model;
 
 	objColor.Initialize();
+	objColor.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	// テクスチャ読み込み
 	textureHandle_ = TextureManager::Load("white1x1.png");
@@ -25,6 +26,7 @@ void EnemyBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::Ve
 	velocity_ = velocity;
 
 	radius_ = 1.0f;
+
 }
 
 void EnemyBullet::Update() {

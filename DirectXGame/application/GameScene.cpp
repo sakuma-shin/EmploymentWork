@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include <fstream>
 using namespace KamataEngine;
+using namespace MathUtility;
 
 GameScene::~GameScene() {
 	Model2::StaticFinalize();
@@ -17,6 +18,10 @@ GameScene::~GameScene() {
 
 	for (EnemyBullet* enemyBullet : enemyBullets_) {
 		delete enemyBullet;
+	}
+
+	for (Wall* wall : walls_) {
+		delete wall;
 	}
 }
 
@@ -35,6 +40,10 @@ void GameScene::Initialize() {
 	playerModel_ = Model2::CreateFromOBJ("player");
 	Vector3 playerPosition = Vector3(0.0f, 0.0f, 35.0f);
 	player_->Initialize(playerModel_, playerPosition);
+
+	playerBulletModel_ = Model2::CreateFromOBJ("playerBullet");
+
+	EnemyBulletModel_ = Model2::CreateFromOBJ("enemyBullet");
 
 	/*レールカメラ初期化*/
 	railCamera_ = new RailCamera();
@@ -58,18 +67,8 @@ void GameScene::Initialize() {
 	startTextureHandle_ = TextureManager::Load("startFont.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, {0, 120.0f});
 
-	/*Enemy* newEnemy = new Enemy();*/
-	//// 初期化
-	// Vector3 enemyPosition = {4.0f, 0.0f, 80.0f};
-	// newEnemy->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
-
-	//// 敵キャラにゲームシーンを渡す
-	// newEnemy->SetGameScene(this);
-
-	//// 敵キャラに自キャラのアドレスを渡す
-	// newEnemy->SetPlayer(player_);
-
-	// enemies_.push_back(newEnemy);
+	wallModel_ = Model2::CreateFromOBJ("bookshelf");
+	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -78,7 +77,7 @@ void GameScene::Initialize() {
 
 	phase_ = Phase::START;
 
-	//クリア演出
+	// クリア演出
 	clearTimer_ = 120;
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
 	isClear = false;
@@ -122,6 +121,10 @@ void GameScene::Draw() {
 
 	for (EnemyBullet* bullet : enemyBullets_) {
 		bullet->Draw(camera_);
+	}
+
+	for (Wall* wall : walls_) {
+		wall->Draw(camera_);
 	}
 
 	Model2::PostDraw();
@@ -201,6 +204,32 @@ void GameScene::UpdateEnemyPopCommands() {
 			float z = (float)std::atof(word.c_str());
 
 			SpawnEnemy({x, y, z});
+		} else if (word.find("WALL") == 0) { // ★ WALLコマンドを追加
+			// X座標
+			getline(line_stream, word, ',');
+			float x = (float)std::atof(word.c_str());
+
+			// Y座標
+			getline(line_stream, word, ',');
+			float y = (float)std::atof(word.c_str());
+
+			// Z座標
+			getline(line_stream, word, ',');
+			float z = (float)std::atof(word.c_str());
+
+			// Scale X
+			getline(line_stream, word, ',');
+			float sx = (float)std::atof(word.c_str());
+
+			// Scale Y
+			getline(line_stream, word, ',');
+			float sy = (float)std::atof(word.c_str());
+
+			// Scale Z
+			getline(line_stream, word, ',');
+			float sz = (float)std::atof(word.c_str());
+
+			SpawnWall({x, y, z}, {sx, sy, sz}); // Wall生成関数を呼び出す
 		} else if (word.find("WAIT") == 0) {
 			getline(line_stream, word, ',');
 
@@ -220,7 +249,7 @@ void GameScene::UpdateEnemyPopCommands() {
 void GameScene::SpawnEnemy(Vector3 spawnPos) {
 	// 敵キャラ初期化
 	Enemy* newEnemy = new Enemy();
-	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, spawnPos);
+	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, spawnPos,EnemyBulletModel_);
 
 	// 敵キャラにゲームシーンを渡す
 	newEnemy->SetGameScene(this);
@@ -231,11 +260,20 @@ void GameScene::SpawnEnemy(Vector3 spawnPos) {
 	enemies_.push_back(newEnemy);
 }
 
+void GameScene::SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale) {
+	Wall* newWall = new Wall();
+	newWall->Initialize(wallModel_, spawnPos, spawnScale, wallTextureHandle_);
+	walls_.push_back(newWall);
+}
+
 void GameScene::CheckAllCollisions() {
 	// 判定対象AとBの座標
 	Vector3 posA, posB;
 
 	float radiusA, radiusB;
+
+	// AABB用のサイズ変数
+	Vector3 sizeA, sizeB;
 
 	// 自弾リストの取得
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
@@ -247,8 +285,8 @@ void GameScene::CheckAllCollisions() {
 	// 自キャラの座標
 	posA = player_->GetWorldPosition();
 
-	// 自キャラの半径を取得
-	radiusA = player_->GetRadius();
+	// 自キャラの大きさを取得
+	sizeA = player_->GetSize();
 
 	// 自キャラと敵弾全ての当たり判定
 	for (EnemyBullet* bullet : enemyBullets) {
@@ -258,18 +296,12 @@ void GameScene::CheckAllCollisions() {
 		// 敵弾の半径
 		radiusB = bullet->GetRadius();
 
-		Vector3 distance;
-		distance.x = (posA - posB).x * (posA - posB).x;
-		distance.y = (posA - posB).y * (posA - posB).y;
-		distance.z = (posA - posB).z * (posA - posB).z;
-
-		// 球と球の衝突判定
-		if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
-			// 自キャラの衝突時のコールバック関数を呼び出す
-			player_->OnCollision();
-
-			// 敵弾の衝突時コールバック関数を呼び出す
+		// AABBとSphereの衝突判定
+		if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
+			// 敵弾の衝突時のコールバック関数を呼び出す
 			bullet->OnCollision();
+			// 自キャラの衝突時コールバック関数を呼び出す
+			player_->OnCollision();
 		}
 	}
 
@@ -281,7 +313,7 @@ void GameScene::CheckAllCollisions() {
 	for (Enemy* enemy : enemies_) {
 		posA = enemy->GetWorldPosition();
 		// 敵キャラの半径を取得
-		radiusA = enemy->GetRadius();
+		sizeA = enemy->GetSize();
 
 		// 自キャラと敵弾全ての当たり判定
 		for (PlayerBullet* bullet : playerBullets) {
@@ -296,12 +328,11 @@ void GameScene::CheckAllCollisions() {
 			distance.y = (posA - posB).y * (posA - posB).y;
 			distance.z = (posA - posB).z * (posA - posB).z;
 
-			// 球と球の衝突判定
-			if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
-				// 自キャラの衝突時のコールバック関数を呼び出す
+			// AABBとSphereの衝突判定
+			if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
+				// 敵キャラの衝突時のコールバック関数を呼び出す
 				enemy->OnCollision();
-
-				// 敵弾の衝突時コールバック関数を呼び出す
+				// 自弾の衝突時コールバック関数を呼び出す
 				bullet->OnCollision();
 			}
 		}
@@ -345,32 +376,54 @@ void GameScene::CheckAllCollisions() {
 	posA = player_->GetWorldPosition();
 
 	// 自キャラの半径を取得
-	radiusA = player_->GetRadius();
+	sizeA = player_->GetSize();
 
 	for (Enemy* enemy : enemies_) {
 		// 自キャラの座標
 		posB = enemy->GetWorldPosition();
 
 		// 自キャラの半径を取得
-		radiusB = enemy->GetRadius();
+		sizeB = enemy->GetSize();
 
-		//距離を取得
-		Vector3 distance;
-		distance.x = (posA.x - posB.x) * (posA.x - posB.x);
-		distance.y = (posA.y - posB.y) * (posA.y - posB.y);
-		distance.z = (posA.z - posB.z) * (posA.z - posB.z);
-
-		// 球と球の衝突判定
-		if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
-			// 敵弾の衝突時のコールバック関数を呼び出す
+		// AABBとAABBの衝突判定
+		if (IsCollisionAABBtoAABB(posA, sizeA, posB, sizeB)) {
 			enemy->OnCollision();
-
-			// 自弾の衝突時コールバック関数を呼び出す
+			// 自キャラの衝突時コールバック関数を呼び出す
 			player_->OnCollision();
 		}
-
 	}
 
+	//#pragma region 自キャラと壁の当たり判定
+
+	//// 自キャラの座標
+	//posA = player_->GetWorldPosition();
+
+	//// 自キャラの半径を取得
+	//radiusA = player_->GetRadius();
+
+	//for (Wall* wall : walls_) {
+	//	// 壁の座標
+	//	posB = wall->GetWorldPosition();
+
+	//	// 壁の半径を取得
+	//	radiusB = wall->GetRadius();
+
+	//	// 距離を取得
+	//	Vector3 distance;
+	//	distance.x = (posA.x - posB.x) * (posA.x - posB.x);
+	//	distance.y = (posA.y - posB.y) * (posA.y - posB.y);
+	//	distance.z = (posA.z - posB.z) * (posA.z - posB.z);
+
+	//	// 球と球の衝突判定
+	//	if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
+	//		// 壁の衝突時のコールバック関数を呼び出す（ここでは壁は消える）
+	//		wall->OnCollision();
+
+	//		// 自キャラの衝突時コールバック関数を呼び出す（ライフが減る）
+	//		player_->OnCollision();
+	//	}
+	//}
+#pragma endregion
 }
 
 void GameScene::StartDirection() {
@@ -392,7 +445,7 @@ void GameScene::PlayUpdate() {
 	}
 
 	if (input_->TriggerKey(DIK_C)) {
-		isClear=true;
+		isClear = true;
 	}
 
 	if (player_->IsDead()) {
@@ -405,7 +458,7 @@ void GameScene::PlayUpdate() {
 		clearTimer_--;
 		clearSprite_->SetSize({1280.0f, 720.0f});
 
-		Vector4 color = {1.0f, 1.0f, 1.0f,1.0f- float(clearTimer_) / 120.0f};
+		Vector4 color = {1.0f, 1.0f, 1.0f, 1.0f - float(clearTimer_) / 120.0f};
 		clearSprite_->SetColor(color);
 
 		if (clearTimer_ <= 0.0f) {
@@ -440,9 +493,23 @@ void GameScene::PlayUpdate() {
 	}
 
 	// プレイヤーアップデート
-	player_->Update();
+	player_->Update(playerBulletModel_);
 
 	UpdateEnemyPopCommands();
+
+	// ★ 壁のデスフラグ処理を追加
+	walls_.remove_if([](Wall* wall) {
+		if (wall->IsDead()) {
+			delete wall;
+			return true;
+		}
+		return false;
+	});
+
+	// ★ 壁の更新
+	for (Wall* wall : walls_) {
+		wall->Update();
+	}
 
 	if (player_->GetState() == Player::State::kPlay) {
 		// レールカメラ更新
@@ -469,5 +536,3 @@ void GameScene::PlayUpdate() {
 
 	CheckAllCollisions();
 }
-
-

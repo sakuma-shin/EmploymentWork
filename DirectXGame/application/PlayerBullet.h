@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include"Model2.h"
+#include "PlayerBulletParticle.h"
 class PlayerBullet {
 public:
 	// 初期化
@@ -29,11 +30,15 @@ private:
 	KamataEngine::Model2* model_ = nullptr;
 	KamataEngine::Vector3 velocity_ = {};
 
+	KamataEngine::ObjectColor color_;
+
 	float deathTimer_= 60.0f;
 
 	bool isDead_ = false;
 
 	// 半径
 	float radius_ = 0.0f;
+
+	std::list<PlayerBulletParticle*> inkParticles_;
 
 };

@@ -13,9 +13,23 @@ void PlayerBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::V
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
+
+	radius_ = 1.0f;
+
+	color_.Initialize();
+	color_.SetColor({0.29f, 0.0f, 0.42f, 1.0f});
 }
 
 void PlayerBullet::Update() {
+
+	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
+		if (particle->IsDead()) {
+			delete particle;
+			return true;
+		}
+		return false;
+	});
+
 	// 時間経過でデス
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
@@ -23,9 +37,20 @@ void PlayerBullet::Update() {
 	// 座標を移動させる
 	worldTransform_.translation_ += velocity_;
 	worldTransform_.UpdateMatrix();
+
+	// particleの更新
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Update();
+	}
 }
 
-void PlayerBullet::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
+void PlayerBullet::Draw(Camera& camera) { 
+	model_->Draw(worldTransform_, camera,&color_);
+
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Draw(camera);
+	}
+}
 
 Vector3 PlayerBullet::GetWorldPosition() {
 	// ワールド座標を入れる変数
@@ -38,4 +63,9 @@ Vector3 PlayerBullet::GetWorldPosition() {
 	return worldPos;
 }
 
-void PlayerBullet::OnCollision() { isDead_ = true; }
+void PlayerBullet::OnCollision() { 
+	PlayerBulletParticle* newParticle = new PlayerBulletParticle();
+	newParticle->Initialize(model_, GetWorldPosition());
+	inkParticles_.push_back(newParticle);
+	/*isDead_ = true; */
+}

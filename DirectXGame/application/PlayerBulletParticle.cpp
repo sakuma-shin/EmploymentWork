@@ -12,13 +12,13 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 	particles_.clear(); // 既にパーティクルが存在する場合はクリア
 
 	// パーティクルの数
-	const int kNumParticles = 20;
+	const int kNumParticles = 10;
 
 	// 速度の最大値
 	const float kMaxSpeed = 0.3f;
 	// 寿命の範囲
-	const float kMinLife = 30.0f;
-	const float kMaxLife = 60.0f;
+	const float kMinLife = 60.0f;
+	const float kMaxLife = 120.0f;
 
 	// 乱数エンジンのシードを初期化
 	randomEngine_.seed(static_cast<unsigned int>(std::time(nullptr)));

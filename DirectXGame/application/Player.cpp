@@ -10,8 +10,9 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	radius_ = 4.0f;
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
+	
+	size_ = {2.0f, 8.0f, 2.0f};
 
 	input_ = Input::GetInstance();
 
@@ -28,11 +29,11 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	color_.Initialize();
 }
 
-void Player::Update() {
+void Player::Update(KamataEngine::Model2* model) {
 
 	switch (state_) {
 	case State::kPlay:
-		PlayUpdate();
+		PlayUpdate(model);
 
 		break;
 
@@ -57,20 +58,12 @@ void Player::Draw(KamataEngine::Camera& camera) {
 		bullet->Draw(camera);
 	}
 
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		particle->Draw(camera);
-	}
-
 	model_->Draw(worldTransform_, camera,&color_);
 }
 
 Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
-	}
-
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		delete particle;
 	}
 }
 
@@ -92,7 +85,7 @@ Vector3 Player::GetWorldPosition() {
 
 void Player::OnCollision() { life -= 1; }
 
-void Player::PlayUpdate() {
+void Player::PlayUpdate(KamataEngine::Model2* model) {
 	// デスフラグが立った弾を削除
 	bullets_.remove_if([](PlayerBullet* bullet) {
 		if (bullet->IsDead()) {
@@ -102,30 +95,46 @@ void Player::PlayUpdate() {
 		return false;
 	});
 
-	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
-		if (particle->IsDead()) {
-			delete particle;
-			return true;
-		}
-		return false;
-	});
-
 	const float kSpeed = 0.5f;
+	// プレイヤーの移動量を格納する変数
+	Vector3 move = {0.0f, 0.0f, 0.0f};
+
 	if (input_->PushKey(DIK_A)) {
-		worldTransform_.translation_.x -= kSpeed;
+		move.x -= kSpeed; // 移動量を累積
 	}
 
 	if (input_->PushKey(DIK_D)) {
-		worldTransform_.translation_.x += kSpeed;
+		move.x += kSpeed; // 移動量を累積
 	}
 
 	if (input_->PushKey(DIK_W)) {
-		worldTransform_.translation_.y += kSpeed;
+		move.y += kSpeed; // 移動量を累積
 	}
 
 	if (input_->PushKey(DIK_S)) {
-		worldTransform_.translation_.y -= kSpeed;
+		move.y -= kSpeed; // 移動量を累積
 	}
+
+	// ワールド座標の更新
+	worldTransform_.translation_.x += move.x;
+	worldTransform_.translation_.y += move.y;
+
+	// プレイヤーの傾きを設定するための定数
+	const float kMaxTilt = 0.3f;   // 最大傾き角度（ラジアン）
+	const float kTiltSpeed = 0.2f; // 傾きが目標角度に近づく速さ（大きいほど速い）
+
+	// 目標とする回転角度を計算
+	// X軸の回転（上下の傾き）: 上に移動 (move.y > 0) で -kMaxTilt (奥に傾く), 下に移動 (move.y < 0) で +kMaxTilt (手前に傾く)
+	float targetRotX = -move.y / kSpeed * kMaxTilt;
+	// Z軸の回転（左右の傾き）: 右に移動 (move.x > 0) で -kMaxTilt (右に傾く), 左に移動 (move.x < 0) で +kMaxTilt (左に傾く)
+	float targetRotZ = -move.x / kSpeed * kMaxTilt;
+
+	// 現在の回転角度を目標角度にLerp（線形補間）で近づける
+	// こうすることで、キーを押した瞬間ではなく滑らかに傾きが変化します
+	worldTransform_.rotation_.x += (targetRotX - worldTransform_.rotation_.x) * kTiltSpeed;
+	worldTransform_.rotation_.z += (targetRotZ - worldTransform_.rotation_.z) * kTiltSpeed;
+
+
 
 	if (input_->TriggerKey(DIK_R)) {
 		life -=1;
@@ -145,22 +154,13 @@ void Player::PlayUpdate() {
 		PlayerBullet* newBullet = new PlayerBullet();
 		float bulletSpeed = 0.6f;
 		Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
-		newBullet->Initialize(model_, GetWorldPosition(), bulletVelocity);
+		newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
 		bullets_.push_back(newBullet);
-
-		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
-		newParticle->Initialize(model_, GetWorldPosition());
-		inkParticles_.push_back(newParticle);
 	}
 
 	// 弾の更新
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Update();
-	}
-
-	// 弾の更新
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		particle->Update();
 	}
 
 	if (life <= 0) {
