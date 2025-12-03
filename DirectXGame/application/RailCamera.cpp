@@ -40,7 +40,7 @@ void RailCamera::StartDirection() {
 	if (timer_ <= kMaxTimer) {
 		timer_++;
 		if (timer_ <= kMoveTimer) {
-			worldTransform_.translation_.z = startPos_.z + (endPos_.z - startPos_.z) * EaseInSine(timer_ / kMaxTimer);
+			worldTransform_.translation_.z = startPos_.z + (endPos_.z - startPos_.z) * EaseOutBack(timer_ / kMaxTimer);
 		}
 	}
 	worldTransform_.AffineMatrix();

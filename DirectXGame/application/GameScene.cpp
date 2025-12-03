@@ -48,7 +48,7 @@ void GameScene::Initialize() {
 	/*レールカメラ初期化*/
 	railCamera_ = new RailCamera();
 	Vector3 railCameraPos = playerPosition;
-	railCameraPos.z = 200.0f;
+	railCameraPos.z = 800.0f;
 	Vector3 railCameraRot = {0.0f, 0.0f, 0.0f};
 	railCamera_->Initialize(railCameraPos, railCameraRot);
 
@@ -65,7 +65,7 @@ void GameScene::Initialize() {
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	startTextureHandle_ = TextureManager::Load("startFont.png");
-	startSprite_ = Sprite::Create(startTextureHandle_, {0, 120.0f});
+	startSprite_ = Sprite::Create(startTextureHandle_, {0.0f, 0.0f});
 
 	wallModel_ = Model2::CreateFromOBJ("bookshelf");
 	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
@@ -82,6 +82,8 @@ void GameScene::Initialize() {
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
 	isClear = false;
 	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
+
+	startTimer_ = 0;
 }
 
 void GameScene::Update() {
@@ -132,7 +134,7 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	if (phase_ == Phase::START) {
-		if (railCamera_->GetTimer() >= 90 && railCamera_->GetTimer() <= 120) {
+		if (startTimer_ >= 1 && startTimer_ <= kMaxStartTimer) {
 			startSprite_->Draw();
 		}
 	}
@@ -435,7 +437,10 @@ void GameScene::StartDirection() {
 	camera_.TransferMatrix();
 
 	if (railCamera_->IsFinishedStartDirection()) {
-		phase_ = Phase::PLAY;
+		startTimer_++;
+		if (startTimer_ >= kMaxStartTimer) {
+			phase_ = Phase::PLAY;
+		}
 	}
 }
 

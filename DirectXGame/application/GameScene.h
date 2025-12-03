@@ -111,5 +111,9 @@ private:
 
 	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
 
+	int startTimer_ = 0;
+
+	const int kMaxStartTimer = 30;
+
 	bool isClear = false;
 };
