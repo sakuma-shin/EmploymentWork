@@ -13,7 +13,7 @@ Enemy::~Enemy() {}
 
 void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel) {
 	// NULLポインタチェック
-	assert(model);
+	/*assert(model);*/
 	models_ = models;
 
 	bulletModel_ = bulletModel;
