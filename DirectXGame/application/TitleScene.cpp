@@ -34,7 +34,7 @@ void TitleScene::Initialize() {
 }
 
 void TitleScene::Update() {
-	if (input_->TriggerKey(DIK_RETURN)) {
+	if (input_->TriggerKey(DIK_R)) {
 		sceneNo = STAGE;
 	}
 	

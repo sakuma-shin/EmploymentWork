@@ -9,7 +9,9 @@ GameScene::~GameScene() {
 	delete railCamera_;
 	delete playerModel_;
 	delete skyDomeModel_;
-	delete skyDome_;
+	for (int i = 0; i < domeNum; i++) {
+		delete skyDomes_[i];
+	}
 	delete debugCamera_;
 	delete enemyModel0_;
 	delete enemyModel1_;
@@ -17,17 +19,26 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	enemies_.clear();
 
 	for (EnemyBullet* enemyBullet : enemyBullets_) {
 		delete enemyBullet;
 	}
+	enemyBullets_.clear();
 
 	for (Wall* wall : walls_) {
 		delete wall;
 	}
+	walls_.clear();
 }
 
 void GameScene::Initialize() {
+
+	enemies_.clear();
+
+	enemyBullets_.clear();
+
+	walls_.clear();
 
 	Model2::StaticInitialize();
 
@@ -56,11 +67,17 @@ void GameScene::Initialize() {
 
 	// プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
-	/*天球*/
-	skyDome_ = new SkyDome();
-	skyDomeModel_ = Model2::CreateFromOBJ("sphere");
 
-	skyDome_->Initialize(skyDomeModel_);
+	skyDomeModel_ = Model2::CreateFromOBJ("skyCube");
+	skyDomes_.resize(domeNum);
+	/*天球*/
+	for (int i = 0; i < skyDomes_.size(); i++) {
+		skyDomes_[i] = new SkyDome();
+
+		const float distance = 30.0f;
+		float posZ = distance * i;
+		skyDomes_[i]->Initialize(skyDomeModel_,posZ);
+	}
 
 	// 敵キャラ関連
 	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
@@ -115,7 +132,9 @@ void GameScene::Draw() {
 	dxCommon->ClearDepthBuffer();
 
 	Model2::PreDraw(dxCommon->GetCommandList());
-	skyDome_->Draw(camera_);
+	for (int i = 0; i < skyDomes_.size(); i++) {
+		skyDomes_[i]->Draw(camera_);
+	}
 
 	player_->Draw(camera_);
 
