@@ -17,15 +17,44 @@ void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rot
 
 	//カメラの初期化
 	camera_.Initialize();
+
+	input_ = Input::GetInstance();
 }
 
 void RailCamera::Update() {
+
+	float kSpeed = 0.5f;
+
+	if (input_->PushKey(DIK_A)) {
+	    worldTransform_.translation_.x -= kSpeed;
+	}
+
+	if (input_->PushKey(DIK_D)) {
+		worldTransform_.translation_.x += kSpeed;
+	}
+
+	if (input_->PushKey(DIK_W)) {
+		worldTransform_.translation_.y += kSpeed;
+	}
+
+	if (input_->PushKey(DIK_S)) {
+		worldTransform_.translation_.y -= kSpeed;
+	}
 
 	Vector3 velocity = {0.0f, 0.0f, 0.2f};
 	worldTransform_.translation_ += velocity;
 
 	Vector3 radian = {0.0f, 0.0f, 0.0f};
 	worldTransform_.rotation_ += radian;
+
+	const float kMoveLimitX = 12.0f;
+	const float kMoveLimitY = 8.0f;
+
+	// 範囲を超えない処理
+	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
+	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
+	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
 
 	worldTransform_.AffineMatrix();
 

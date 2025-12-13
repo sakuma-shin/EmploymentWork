@@ -117,9 +117,9 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		move.y -= kSpeed;
 	}
 
-	// ワールド座標の更新
-	worldTransform_.translation_.x += move.x;
-	worldTransform_.translation_.y += move.y;
+	//// ワールド座標の更新
+	//worldTransform_.translation_.x += move.x;
+	//worldTransform_.translation_.y += move.y;
 
 	const float kMaxTilt = 0.3f;
 	const float kTiltSpeed = 0.2f;
@@ -135,14 +135,7 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	//	life -= 1;
 	//}
 
-	const float kMoveLimitX = 12.0f;
-	const float kMoveLimitY = 8.0f;
-
-	// 範囲を超えない処理
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
+	
 
 	if (canShot_) {
 		if (input_->TriggerKey(DIK_SPACE)) {
