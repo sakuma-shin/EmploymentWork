@@ -74,4 +74,9 @@ private:
 	    60.0f };
 
 	KamataEngine::ObjectColor color_;
+
+	const int32_t kMaxFireTimer_ = 15;
+	int32_t fireTimer_ = 0;
+
+	bool canShot_ = false;
 };

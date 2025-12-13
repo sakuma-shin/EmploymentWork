@@ -11,7 +11,9 @@ GameScene::~GameScene() {
 	delete skyDomeModel_;
 	delete skyDome_;
 	delete debugCamera_;
-	delete enemyModel_;
+	delete enemyModel0_;
+	delete enemyModel1_;
+	delete enemyModel2_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -61,7 +63,9 @@ void GameScene::Initialize() {
 	skyDome_->Initialize(skyDomeModel_);
 
 	// 敵キャラ関連
-	enemyModel_ = Model2::CreateFromOBJ("enemy");
+	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
+	enemyModel1_ = Model2::CreateFromOBJ("enemy1");
+	enemyModel2_ = Model2::CreateFromOBJ("enemy2");
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	startTextureHandle_ = TextureManager::Load("startFont.png");
@@ -190,7 +194,7 @@ void GameScene::UpdateEnemyPopCommands() {
 		}
 
 		// POPコマンド
-		if (word.find("POP") == 0) {
+		if (word.find("ENEMY") == 0) {
 			// X座標
 			getline(line_stream, word, ',');
 			float x = (float)std::atof(word.c_str());
@@ -247,9 +251,15 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::SpawnEnemy(Vector3 spawnPos) {
+
+	// 敵生成時
+	std::vector<KamataEngine::Model2*> enemyModels;
+	enemyModels.push_back(enemyModel0_);
+	enemyModels.push_back(enemyModel1_);
+	enemyModels.push_back(enemyModel2_);
 	// 敵キャラ初期化
 	Enemy* newEnemy = new Enemy();
-	newEnemy->Initialize(enemyModel_, enemyTextureHandle_, spawnPos,EnemyBulletModel_);
+	newEnemy->Initialize(enemyModels, enemyTextureHandle_, spawnPos, EnemyBulletModel_);
 
 	// 敵キャラにゲームシーンを渡す
 	newEnemy->SetGameScene(this);
@@ -311,29 +321,31 @@ void GameScene::CheckAllCollisions() {
 
 	// 敵のワールド座標を取得
 	for (Enemy* enemy : enemies_) {
-		posA = enemy->GetWorldPosition();
-		// 敵キャラの半径を取得
-		sizeA = enemy->GetSize();
+		if (enemy->GetPhase() == Enemy::Phase::Approach) {
+			posA = enemy->GetWorldPosition();
+			// 敵キャラの半径を取得
+			sizeA = enemy->GetSize();
 
-		// 自キャラと敵弾全ての当たり判定
-		for (PlayerBullet* bullet : playerBullets) {
-			// 自弾の座標
-			posB = bullet->GetWorldPosition();
+			// 自キャラと敵弾全ての当たり判定
+			for (PlayerBullet* bullet : playerBullets) {
+				// 自弾の座標
+				posB = bullet->GetWorldPosition();
 
-			// 自弾の半径
-			radiusB = bullet->GetRadius();
+				// 自弾の半径
+				radiusB = bullet->GetRadius();
 
-			Vector3 distance;
-			distance.x = (posA - posB).x * (posA - posB).x;
-			distance.y = (posA - posB).y * (posA - posB).y;
-			distance.z = (posA - posB).z * (posA - posB).z;
+				Vector3 distance;
+				distance.x = (posA - posB).x * (posA - posB).x;
+				distance.y = (posA - posB).y * (posA - posB).y;
+				distance.z = (posA - posB).z * (posA - posB).z;
 
-			// AABBとSphereの衝突判定
-			if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
-				// 敵キャラの衝突時のコールバック関数を呼び出す
-				enemy->OnCollision();
-				// 自弾の衝突時コールバック関数を呼び出す
-				bullet->OnCollision();
+				// AABBとSphereの衝突判定
+				if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
+					// 敵キャラの衝突時のコールバック関数を呼び出す
+					enemy->OnCollision();
+					// 自弾の衝突時コールバック関数を呼び出す
+					bullet->OnCollision();
+				}
 			}
 		}
 	}
@@ -379,17 +391,20 @@ void GameScene::CheckAllCollisions() {
 	sizeA = player_->GetSize();
 
 	for (Enemy* enemy : enemies_) {
-		// 自キャラの座標
-		posB = enemy->GetWorldPosition();
+		if (enemy->GetPhase() == Enemy::Phase::Approach) {
+			// 自キャラの座標
+			posB = enemy->GetWorldPosition();
 
-		// 自キャラの半径を取得
-		sizeB = enemy->GetSize();
+			// 自キャラの半径を取得
+			sizeB = enemy->GetSize();
 
-		// AABBとAABBの衝突判定
-		if (IsCollisionAABBtoAABB(posA, sizeA, posB, sizeB)) {
-			enemy->OnCollision();
-			// 自キャラの衝突時コールバック関数を呼び出す
-			player_->OnCollision();
+			// AABBとAABBの衝突判定
+			if (IsCollisionAABBtoAABB(posA, sizeA, posB, sizeB)) {
+				/*enemy->OnCollision();*/
+				// 自キャラの衝突時コールバック関数を呼び出す
+				player_->OnCollision();
+
+			}
 		}
 	}
 

@@ -32,7 +32,7 @@ private:
 
 	KamataEngine::ObjectColor color_;
 
-	float deathTimer_= 60.0f;
+	float deathTimer_= 120.0f;
 
 	bool isDead_ = false;
 

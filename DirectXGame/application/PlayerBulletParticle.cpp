@@ -23,6 +23,7 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 	// 乱数エンジンのシードを初期化
 	randomEngine_.seed(static_cast<unsigned int>(std::time(nullptr)));
 
+
 	for (int i = 0; i < kNumParticles; ++i) {
 		// 方向と速度を生成
 		float x = distribution_(randomEngine_);

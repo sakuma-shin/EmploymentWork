@@ -71,7 +71,9 @@ private:
 	///*enemy関連*///
 	std::list<Enemy*> enemies_;
 	uint32_t enemyTextureHandle_ = 0u;
-	KamataEngine::Model2* enemyModel_ = nullptr;
+	KamataEngine::Model2* enemyModel0_ = nullptr;
+	KamataEngine::Model2* enemyModel1_ = nullptr;
+	KamataEngine::Model2* enemyModel2_ = nullptr;
 
 	KamataEngine::Model2* skyDomeModel_ = nullptr;
 
