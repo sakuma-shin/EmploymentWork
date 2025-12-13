@@ -31,6 +31,8 @@ private:
 
 	KamataEngine::Camera camera_;
 
+	KamataEngine::Input* input_ = nullptr;
+
 	/// <summary>
 	/// スタート演出のカメラが動くタイマー
 	/// </summary>

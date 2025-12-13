@@ -11,10 +11,10 @@ Enemy::Enemy() {}
 
 Enemy::~Enemy() {}
 
-void Enemy::Initialize(KamataEngine::Model2* model, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel) {
+void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel) {
 	// NULLポインタチェック
 	assert(model);
-	model_ = model;
+	models_ = models;
 
 	bulletModel_ = bulletModel;
 
@@ -24,12 +24,22 @@ void Enemy::Initialize(KamataEngine::Model2* model, uint32_t textureHandle, cons
 	worldTransform_.Initialize();
 	// 引数からpositionを代入して初期座標を設定
 	worldTransform_.translation_ = position;
-	// 敵が正面を向くようにする
-	worldTransform_.rotation_.y = 3.2f;
+
+	worldTransform_.rotation_.x = 3.0f;
+
+	worldTransform_.rotation_.y = 1.6f;
+
+	worldTransform_.scale_ *= 0.7f;
 
 	PhaseInitialize();
 
 	size_ = {5.0f, 4.0f, 1.0f};
+
+	leaveTimer_ = kMaxLeaveTimer_;
+
+	color_.Initialize();
+
+	isDead_ = false;
 
 	worldTransform_.UpdateMatrix();
 }
@@ -53,11 +63,32 @@ void Enemy::Update() {
 	worldTransform_.UpdateMatrix();
 }
 
-void Enemy::Draw(Camera& camera) { model_->Draw(worldTransform_, camera, textureHandle_); }
+void Enemy::Draw(Camera& camera) {
+	if (!models_.empty()) {
+		if (phase_ == Phase::Approach) {
+			models_[currentModelIndex_]->Draw(worldTransform_, camera, textureHandle_, &color_);
+		} else if (phase_ == Phase::Leave) {
+			models_[0]->Draw(worldTransform_, camera, textureHandle_, &color_);
+		}
+	}
+}
 
 void Enemy::OnCollision() { phase_ = Phase::Leave; }
 
 void Enemy::Approach() {
+
+	animationTimer_++;
+	if (animationTimer_ >= kAnimationInterval) {
+		// タイマーをリセット
+		animationTimer_ = 0;
+		// 次のモデルへインデックスを進める
+		currentModelIndex_++;
+		// モデルの個数を超えたら0に戻す（ループさせる）
+		if (currentModelIndex_ >= models_.size()) {
+			currentModelIndex_ = 0;
+		}
+	}
+
 	// 速度の初期化
 	const float kSpeed = -0.05f;
 	velocity_ = {0.0f, 0.0f, kSpeed};
@@ -78,37 +109,19 @@ void Enemy::Approach() {
 
 void Enemy::Leave() {
 	if (leaveTimer_ > 0) {
+
+		worldTransform_.rotation_.z = -1.5f;
+
 		// タイマーを減らす
 		leaveTimer_--;
+	
+		float downVelocity = -0.4f;
 
-		// 0.0fから1.0fまでの進行度を計算
-		float t = 1.0f - (float)leaveTimer_ / kLeaveDuration;
+		worldTransform_.translation_.y += downVelocity;
 
-		// 死亡演出のY軸移動を計算
-		float y_offset;
+		float alpha = float(leaveTimer_) / float(kMaxLeaveTimer_);
 
-		if (t <= 0.5f) { // 最初の半分で上昇
-			// tを0.0f〜1.0fの範囲に正規化し、EaseOutQuadで緩やかに上昇させる
-			float t_up = t * 2.0f;
-			float ease_t = EaseOutQuad(t_up); // EaseOutQuad(t) = 1 - (1 - t) * (1 - t);
-			y_offset = ease_t * flyUpHeight_;
-		} else { // 残りの半分で落下
-			// tを0.0f〜1.0fの範囲に正規化し、EaseInQuadで落下させる
-			float t_down = (t - 0.5f) * 2.0f;
-			float ease_t = EaseInQuad(t_down); // EaseInQuad(t) = t * t;
-
-			// 上昇分の高さから、落下分を引く
-			// 落下開始時の位置が最大浮き上がり位置になる
-			y_offset = flyUpHeight_ - (ease_t * (initialTranslation_.y + flyUpHeight_)); // Y軸の初期値まで落下させる
-
-			// 最終的にY軸が initialTranslation_.y の位置より下がるように、落下距離を調整します。
-			// ここではシンプルに、最大浮き上がり位置から「元の位置より少し下」まで落下させるように調整します。
-			float dropDistance = initialTranslation_.y + flyUpHeight_ + 2.0f; // 元の位置より2.0f下まで
-			y_offset = flyUpHeight_ - (ease_t * dropDistance);
-		}
-
-		// 座標の更新（XとZは固定、Yだけを演出で動かす）
-		worldTransform_.translation_.y = initialTranslation_.y + y_offset;
+		color_.SetColor({1.0f, 1.0f, 1.0f, alpha});
 
 	} else {
 		// 演出終了、死亡させる

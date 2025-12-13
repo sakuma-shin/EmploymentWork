@@ -14,7 +14,7 @@ public:
 	Enemy();
 	~Enemy();
 
-	void Initialize(KamataEngine::Model2* model, uint32_t textureHandle, const KamataEngine::Vector3& position,KamataEngine::Model2* bulletModel);
+	void Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel);
 
 	void Update();
 
@@ -50,16 +50,27 @@ public:
 	// 発射感覚
 	static const int kFireInterval = 180;
 
+	//アニメーションの切り替え間隔（フレーム数）
+	static const int kAnimationInterval = 10;
+
 	KamataEngine::Vector3 GetSize() { return size_; }
 
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	bool IsDead() const { return isDead_; }
 
+	Phase GetPhase() const { return phase_; }
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 
-	KamataEngine::Model2* model_ = nullptr;
+	// modelのリスト
+	std::vector<KamataEngine::Model2*> models_;
+
+	//現在のアニメーションフレームのインデックス
+	int32_t currentModelIndex_ = 0;
+	//アニメーション用タイマー
+	int32_t animationTimer_ = 0;
 
 	uint32_t textureHandle_ = 0u;
 
@@ -71,6 +82,8 @@ private:
 
 	static const int kLeaveDuration = 60;
 	int32_t leaveTimer_ = 0;
+	const int32_t kMaxLeaveTimer_ = 60;
+
 	KamataEngine::Vector3 initialTranslation_ = {};
 	float flyUpHeight_ = 1.5f; 
 
@@ -88,4 +101,7 @@ private:
 	bool isDead_ = false;
 
 	KamataEngine::Model2* bulletModel_;
+
+	KamataEngine::ObjectColor color_;
+
 };

@@ -16,6 +16,8 @@ void PlayerBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::V
 
 	radius_ = 1.0f;
 
+	deathTimer_ = 120.0f;
+
 	color_.Initialize();
 	color_.SetColor({0.29f, 0.0f, 0.42f, 1.0f});
 }
@@ -67,5 +69,5 @@ void PlayerBullet::OnCollision() {
 	PlayerBulletParticle* newParticle = new PlayerBulletParticle();
 	newParticle->Initialize(model_, GetWorldPosition());
 	inkParticles_.push_back(newParticle);
-	/*isDead_ = true; */
+	/*isDead_ = true;*/ 
 }

@@ -1,6 +1,6 @@
 #include "Player.h"
-#include <cassert>
 #include "Easing.h"
+#include <cassert>
 
 using namespace KamataEngine;
 
@@ -11,7 +11,7 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
-	
+
 	size_ = {2.0f, 8.0f, 2.0f};
 
 	input_ = Input::GetInstance();
@@ -27,6 +27,8 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	deathTimer_ = 0.0f;
 
 	color_.Initialize();
+
+	canShot_ = true;
 }
 
 void Player::Update(KamataEngine::Model2* model) {
@@ -58,7 +60,7 @@ void Player::Draw(KamataEngine::Camera& camera) {
 		bullet->Draw(camera);
 	}
 
-	model_->Draw(worldTransform_, camera,&color_);
+	model_->Draw(worldTransform_, camera, &color_);
 }
 
 Player::~Player() {
@@ -96,67 +98,64 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	});
 
 	const float kSpeed = 0.5f;
-	// プレイヤーの移動量を格納する変数
+
 	Vector3 move = {0.0f, 0.0f, 0.0f};
 
 	if (input_->PushKey(DIK_A)) {
-		move.x -= kSpeed; // 移動量を累積
+		move.x -= kSpeed;
 	}
 
 	if (input_->PushKey(DIK_D)) {
-		move.x += kSpeed; // 移動量を累積
+		move.x += kSpeed;
 	}
 
 	if (input_->PushKey(DIK_W)) {
-		move.y += kSpeed; // 移動量を累積
+		move.y += kSpeed;
 	}
 
 	if (input_->PushKey(DIK_S)) {
-		move.y -= kSpeed; // 移動量を累積
+		move.y -= kSpeed;
 	}
 
-	// ワールド座標の更新
-	worldTransform_.translation_.x += move.x;
-	worldTransform_.translation_.y += move.y;
+	//// ワールド座標の更新
+	//worldTransform_.translation_.x += move.x;
+	//worldTransform_.translation_.y += move.y;
 
-	// プレイヤーの傾きを設定するための定数
-	const float kMaxTilt = 0.3f;   // 最大傾き角度（ラジアン）
-	const float kTiltSpeed = 0.2f; // 傾きが目標角度に近づく速さ（大きいほど速い）
+	const float kMaxTilt = 0.3f;
+	const float kTiltSpeed = 0.2f;
 
-	// 目標とする回転角度を計算
-	// X軸の回転（上下の傾き）: 上に移動 (move.y > 0) で -kMaxTilt (奥に傾く), 下に移動 (move.y < 0) で +kMaxTilt (手前に傾く)
 	float targetRotX = -move.y / kSpeed * kMaxTilt;
-	// Z軸の回転（左右の傾き）: 右に移動 (move.x > 0) で -kMaxTilt (右に傾く), 左に移動 (move.x < 0) で +kMaxTilt (左に傾く)
+
 	float targetRotZ = -move.x / kSpeed * kMaxTilt;
 
-	// 現在の回転角度を目標角度にLerp（線形補間）で近づける
-	// こうすることで、キーを押した瞬間ではなく滑らかに傾きが変化します
 	worldTransform_.rotation_.x += (targetRotX - worldTransform_.rotation_.x) * kTiltSpeed;
 	worldTransform_.rotation_.z += (targetRotZ - worldTransform_.rotation_.z) * kTiltSpeed;
 
+	//if (input_->TriggerKey(DIK_R)) {
+	//	life -= 1;
+	//}
 
+	
 
-	if (input_->TriggerKey(DIK_R)) {
-		life -=1;
+	if (canShot_) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			// 弾
+			PlayerBullet* newBullet = new PlayerBullet();
+			float bulletSpeed = 0.6f;
+			Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
+			newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
+			bullets_.push_back(newBullet);
+			canShot_ = false;
+		}
+	} else {
+		fireTimer_--;
+		if (fireTimer_ <= 0) {
+			canShot_ = true;
+			fireTimer_ = kMaxFireTimer_;
+		}
 	}
 
-	const float kMoveLimitX = 12.0f;
-	const float kMoveLimitY = 8.0f;
-
-	// 範囲を超えない処理
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
-
-	if (input_->TriggerKey(DIK_SPACE)) {
-		// 弾
-		PlayerBullet* newBullet = new PlayerBullet();
-		float bulletSpeed = 0.6f;
-		Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
-		newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
-		bullets_.push_back(newBullet);
-	}
+	
 
 	// 弾の更新
 	for (PlayerBullet* bullet : bullets_) {
@@ -174,7 +173,7 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	color_.SetColor({color, color, color, 1.0f});
 }
 
-void Player::DeathRotate() { 
+void Player::DeathRotate() {
 	float startRot = worldTransform_.rotation_.x;
 
 	float endRot = 1.0f;
@@ -188,10 +187,9 @@ void Player::DeathRotate() {
 		deathTimer_ = 0.0f;
 		state_ = State::kDeathDrop;
 	}
-
 }
 
-void Player::DeathDrop() { 
+void Player::DeathDrop() {
 	float startPos = worldTransform_.translation_.y;
 
 	float endPos = startPos;
@@ -203,13 +201,12 @@ void Player::DeathDrop() {
 		deathTimer_ = 0.0f;
 		state_ = State::kDeathDisappear;
 	}
-
 }
 
 void Player::DeathDisappear() {
 	Vector3 startScale = worldTransform_.scale_;
 
-	Vector3 endScale = {0.0f,0.0f,0.0f};
+	Vector3 endScale = {0.0f, 0.0f, 0.0f};
 
 	if (deathTimer_ <= MaxDeathTimer[1]) {
 		deathTimer_++;
