@@ -66,7 +66,9 @@ private:
 	Player* player_ = nullptr;
 	KamataEngine::Model2* playerModel_ = nullptr;
 	RailCamera* railCamera_ = nullptr;
-	SkyDome* skyDome_ = nullptr;
+
+	const int domeNum =100;
+	std::vector <SkyDome*> skyDomes_;
 
 	///*enemy関連*///
 	std::list<Enemy*> enemies_;

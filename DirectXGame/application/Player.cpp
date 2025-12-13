@@ -141,7 +141,7 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			// 弾
 			PlayerBullet* newBullet = new PlayerBullet();
-			float bulletSpeed = 0.6f;
+			float bulletSpeed = 2.0f;
 			Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
 			newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
 			bullets_.push_back(newBullet);

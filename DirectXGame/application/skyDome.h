@@ -3,7 +3,7 @@
 #include "Model2.h"
 class SkyDome {
 public:
-	void Initialize(KamataEngine::Model2* model);
+	void Initialize(KamataEngine::Model2* model,float positionZ);
 
 	void Update();
 
