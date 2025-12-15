@@ -68,7 +68,7 @@ private:
 	KamataEngine::Model2* playerModel_ = nullptr;
 	RailCamera* railCamera_ = nullptr;
 
-	const int domeNum =100;
+	const int domeNum =50;
 	std::vector <SkyDome*> skyDomes_;
 
 	Door* door_ = nullptr;
