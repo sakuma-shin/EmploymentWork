@@ -1,6 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
-#include"Model2.h"
+#include "Model2.h"
 #include "IScene.h"
 #include<vector>
 #include"Player.h"
@@ -104,7 +104,8 @@ private:
 
 	enum class Phase {
 		START,
-		PLAY
+		PLAY,
+		CLEAR
 	};
 
 	Phase phase_ = Phase::START;
@@ -120,5 +121,7 @@ private:
 
 	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
 
-	bool isClear = false;
+	bool isClear_ = false;
+
+	float goalPosZ_ = 0.0f;
 };

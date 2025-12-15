@@ -78,6 +78,8 @@ void GameScene::Initialize() {
 		skyDomes_[i]->Initialize(skyDomeModel_,posZ);
 	}
 
+
+
 	//ドア
 	doorModel_ = Model2::CreateFromOBJ("Door");
 
@@ -85,6 +87,8 @@ void GameScene::Initialize() {
 
 	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum)-distance/2.0f};
 	door_->Initialize(doorModel_,doorPos);
+
+	goalPosZ_ = distance * float(domeNum) - (distance*3 / 2.0f);
 
 	// 敵キャラ関連
 	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
@@ -108,7 +112,7 @@ void GameScene::Initialize() {
 	// クリア演出
 	clearTimer_ = 120;
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
-	isClear = false;
+	isClear_ = false;
 	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
 }
 
@@ -170,7 +174,7 @@ void GameScene::Draw() {
 		}
 	}
 
-	if (isClear) {
+	if (isClear_) {
 		clearSprite_->Draw();
 	}
 
@@ -488,8 +492,8 @@ void GameScene::PlayUpdate() {
 		sceneNo = RESULT;
 	}
 
-	if (input_->TriggerKey(DIK_C)) {
-		isClear = true;
+	if (player_->GetWorldPosition().z>=goalPosZ_) {
+		isClear_ = true;
 	}
 
 	if (player_->IsDead()) {
@@ -497,7 +501,7 @@ void GameScene::PlayUpdate() {
 		sceneNo = RESULT;
 	}
 
-	if (isClear) {
+	if (isClear_) {
 
 		clearTimer_--;
 		clearSprite_->SetSize({1280.0f, 720.0f});
