@@ -10,6 +10,7 @@
 #include"EnemyBullet.h"
 #include"Wall.h"
 #include"ExMathUtility.h"
+#include"Door.h"
 
 class GameScene:public IScene{
 public:
@@ -69,6 +70,10 @@ private:
 
 	const int domeNum =100;
 	std::vector <SkyDome*> skyDomes_;
+
+	Door* door_ = nullptr;
+	KamataEngine::Model2* doorModel_ = nullptr;
+
 
 	///*enemy関連*///
 	std::list<Enemy*> enemies_;

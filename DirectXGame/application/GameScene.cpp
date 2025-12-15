@@ -70,14 +70,23 @@ void GameScene::Initialize() {
 
 	skyDomeModel_ = Model2::CreateFromOBJ("skyCube");
 	skyDomes_.resize(domeNum);
+	const float distance = 30.0f;
 	/*天球*/
 	for (int i = 0; i < skyDomes_.size(); i++) {
 		skyDomes_[i] = new SkyDome();
 
-		const float distance = 30.0f;
+		
 		float posZ = distance * i;
 		skyDomes_[i]->Initialize(skyDomeModel_,posZ);
 	}
+
+	//ドア
+	doorModel_ = Model2::CreateFromOBJ("Door");
+
+	door_ = new Door();
+
+	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum)-distance/2.0f};
+	door_->Initialize(doorModel_,doorPos);
 
 	// 敵キャラ関連
 	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
@@ -131,7 +140,10 @@ void GameScene::Draw() {
 	// 深度クリア
 	dxCommon->ClearDepthBuffer();
 
+
 	Model2::PreDraw(dxCommon->GetCommandList());
+
+	door_->Draw(camera_);
 	for (int i = 0; i < skyDomes_.size(); i++) {
 		skyDomes_[i]->Draw(camera_);
 	}
