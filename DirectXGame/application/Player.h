@@ -44,6 +44,8 @@ public:
 
 	State GetState() const { return state_; }
 
+	bool IsDamaged() const { return isDamaged_; }
+
 private:
 	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
@@ -79,4 +81,9 @@ private:
 	int32_t fireTimer_ = 0;
 
 	bool canShot_ = false;
+
+	bool isDamaged_ = false;
+
+	int invTime_ = 0;
+	const int kMaxInvtime = 150;
 };

@@ -3,6 +3,7 @@
 #include <cassert>
 
 using namespace KamataEngine;
+using namespace MathUtility;
 
 void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position) {
 	assert(model);
@@ -10,9 +11,9 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
+	worldTransform_.scale_ *= 0.5f;
 
-	size_ = {2.0f, 8.0f, 2.0f};
+	size_ = {1.0f, 4.0f, 1.0f};
 
 	input_ = Input::GetInstance();
 
@@ -29,6 +30,8 @@ void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 posit
 	color_.Initialize();
 
 	canShot_ = true;
+
+	invTime_ = kMaxInvtime;
 }
 
 void Player::Update(KamataEngine::Model2* model) {
@@ -85,7 +88,10 @@ Vector3 Player::GetWorldPosition() {
 	return worldPos;
 }
 
-void Player::OnCollision() { life -= 1; }
+void Player::OnCollision() {
+	life -= 1;
+	isDamaged_ = true;
+}
 
 void Player::PlayUpdate(KamataEngine::Model2* model) {
 	// デスフラグが立った弾を削除
@@ -96,6 +102,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		}
 		return false;
 	});
+
+	
 
 	const float kSpeed = 0.5f;
 
@@ -170,7 +178,19 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 
 	color = static_cast<float>(life) / kMaxLife;
 
-	color_.SetColor({color, color, color, 1.0f});
+	float alpha = 1.0f;
+	if (isDamaged_) {
+		if (--invTime_ <= 0) {
+			isDamaged_ = false;
+			invTime_ = kMaxInvtime;
+		}
+
+		if (invTime_ % 6 == 0) {
+			alpha = 0.0f;
+		}
+	}
+
+	color_.SetColor({color, color, color, alpha});
 }
 
 void Player::DeathRotate() {

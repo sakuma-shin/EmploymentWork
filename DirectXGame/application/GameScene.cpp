@@ -51,7 +51,7 @@ void GameScene::Initialize() {
 	/*プレイヤー関連初期化*/
 	player_ = new Player();
 	playerModel_ = Model2::CreateFromOBJ("player");
-	Vector3 playerPosition = Vector3(0.0f, 0.0f, 35.0f);
+	Vector3 playerPosition = Vector3(0.0f, 0.0f, 28.0f);
 	player_->Initialize(playerModel_, playerPosition);
 
 	playerBulletModel_ = Model2::CreateFromOBJ("playerBullet");
@@ -74,8 +74,6 @@ void GameScene::Initialize() {
 	/*天球*/
 	for (int i = 0; i < skyDomes_.size(); i++) {
 		skyDomes_[i] = new SkyDome();
-
-		
 		float posZ = distance * i;
 		skyDomes_[i]->Initialize(skyDomeModel_,posZ);
 	}
