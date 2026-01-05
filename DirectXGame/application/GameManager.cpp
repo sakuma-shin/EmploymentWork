@@ -1,4 +1,7 @@
 #include "GameManager.h"
+#include"TitleScene.h"
+#include"GameScene.h"
+#include"ResultScene.h"
 
 
 GameManager::GameManager() {
@@ -12,14 +15,11 @@ GameManager::GameManager() {
 	 input_ = Input::GetInstance();
 	 input_->Initialize();
 
-	// 各シーンの配列
-	sceneArr_[TITLE] = std::make_unique<TitleScene>();
-	sceneArr_[STAGE] = std::make_unique<GameScene>();
-	sceneArr_[RESULT] = std::make_unique<ResultScene>();
-
 	currentSceneNo_ = TITLE;
+	 prevSceneNo_ = TITLE;
 
 	// ゲーム開始時に最初にロードされるシーンのInitializeをここで呼び出す
+	 sceneArr_[currentSceneNo_] = std::make_unique<TitleScene>();
 	sceneArr_[currentSceneNo_]->Initialize();
 }
 
@@ -40,6 +40,20 @@ int GameManager::Run() {
 
 		//シーン変更チェック
 		if (prevSceneNo_ != currentSceneNo_) {
+			// 新しいシーンを生成する
+			switch (currentSceneNo_) {
+			case TITLE:
+				sceneArr_[TITLE] = std::make_unique<TitleScene>();
+				break;
+			case STAGE:
+				sceneArr_[STAGE] = std::make_unique<GameScene>();
+				break;
+			case RESULT:
+				sceneArr_[RESULT] = std::make_unique<ResultScene>();
+				break;
+			}
+
+			// 新しいシーンを初期化
 			sceneArr_[currentSceneNo_]->Initialize();
 		}
 

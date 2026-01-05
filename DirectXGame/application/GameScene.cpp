@@ -75,16 +75,16 @@ void GameScene::Initialize() {
 	for (int i = 0; i < skyDomes_.size(); i++) {
 		skyDomes_[i] = new SkyDome();
 		float posZ = distance * i;
-		skyDomes_[i]->Initialize(skyDomeModel_,posZ);
+		skyDomes_[i]->Initialize(skyDomeModel_, posZ);
 	}
 
-	//ドア
+	// ドア
 	doorModel_ = Model2::CreateFromOBJ("Door");
 
 	door_ = new Door();
 
-	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum)-distance/2.0f};
-	door_->Initialize(doorModel_,doorPos);
+	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum) - distance / 2.0f};
+	door_->Initialize(doorModel_, doorPos);
 
 	// 敵キャラ関連
 	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
@@ -138,7 +138,6 @@ void GameScene::Draw() {
 	// 深度クリア
 	dxCommon->ClearDepthBuffer();
 
-
 	Model2::PreDraw(dxCommon->GetCommandList());
 
 	door_->Draw(camera_);
@@ -183,6 +182,9 @@ void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
 }
 
 void GameScene::LoadEnemyPopData() {
+	enemyPopCommands.clear();
+	enemyPopCommands.str("");
+
 	// ファイルを開く
 	std::ifstream file;
 	file.open("Resources/EnemyData/enemyPop.csv");
@@ -206,6 +208,8 @@ void GameScene::UpdateEnemyPopCommands() {
 		}
 		return;
 	}
+
+	float playerPosZ = player_->GetWorldPosition().z;
 
 	// 1行分の文字列を入れる変数
 	std::string line;
@@ -234,21 +238,22 @@ void GameScene::UpdateEnemyPopCommands() {
 
 			// Z座標
 			getline(line_stream, word, ',');
-			float z = (float)std::atof(word.c_str());
+			float z = playerPosZ + (float)std::atof(word.c_str());
 
 			SpawnEnemy({x, y, z});
-		} else if (word.find("WALL") == 0) { // ★ WALLコマンドを追加
+		} else if (word.find("WALL") == 0) {
 			// X座標
 			getline(line_stream, word, ',');
 			float x = (float)std::atof(word.c_str());
 
 			// Y座標
 			getline(line_stream, word, ',');
-			float y = (float)std::atof(word.c_str());
+			/*float y = (float)std::atof(word.c_str());*/
+			float y = -30.0f;
 
 			// Z座標
 			getline(line_stream, word, ',');
-			float z = (float)std::atof(word.c_str());
+			float z = playerPosZ + (float)std::atof(word.c_str());
 
 			// Scale X
 			getline(line_stream, word, ',');
@@ -263,6 +268,48 @@ void GameScene::UpdateEnemyPopCommands() {
 			float sz = (float)std::atof(word.c_str());
 
 			SpawnWall({x, y, z}, {sx, sy, sz}); // Wall生成関数を呼び出す
+		} else if (word.find("REPEAT_ENEMY")==0) {
+			getline(line_stream, word, ',');
+			//並べる個数を取得
+			int32_t count = std::atoi(word.c_str());
+
+			getline(line_stream, word, ',');
+			//戦闘の敵のX座標を取得
+			float startX = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			//先頭のY座標
+			float startY = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			//先頭のZ座標
+			float startZ = playerPosZ+(float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			//X座標の間隔
+			float offsetX = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			//Y座標の間隔
+			float offsetY = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			//Z座標の間隔
+			float offsetZ = (float)std::atof(word.c_str());
+
+			//敵の数だけ敵を生成
+			for (int i = 0; i < count; i++) {
+				Vector3 pos;
+
+				pos.x = startX + (offsetX * i);
+
+				pos.y = startY + (offsetY * i);
+
+				pos.z = startZ + (offsetZ * i);
+
+				SpawnEnemy(pos);
+			}
+
 		} else if (word.find("WAIT") == 0) {
 			getline(line_stream, word, ',');
 
@@ -340,7 +387,9 @@ void GameScene::CheckAllCollisions() {
 			// 敵弾の衝突時のコールバック関数を呼び出す
 			bullet->OnCollision();
 			// 自キャラの衝突時コールバック関数を呼び出す
-			player_->OnCollision();
+			if (!player_->IsDamaged()) {
+				player_->OnCollision();
+			}
 		}
 	}
 
@@ -431,42 +480,39 @@ void GameScene::CheckAllCollisions() {
 			if (IsCollisionAABBtoAABB(posA, sizeA, posB, sizeB)) {
 				/*enemy->OnCollision();*/
 				// 自キャラの衝突時コールバック関数を呼び出す
-				player_->OnCollision();
-
+				if (!player_->IsDamaged()) {
+					player_->OnCollision();
+				}
 			}
 		}
 	}
 
-	//#pragma region 自キャラと壁の当たり判定
+#pragma region 自キャラと壁の当たり判定
 
-	//// 自キャラの座標
-	//posA = player_->GetWorldPosition();
+	// 自キャラの座標
+	posA = player_->GetWorldPosition();
 
-	//// 自キャラの半径を取得
-	//radiusA = player_->GetRadius();
+	// 自キャラの半径を取得
+	sizeA = player_->GetSize();
 
-	//for (Wall* wall : walls_) {
-	//	// 壁の座標
-	//	posB = wall->GetWorldPosition();
+	for (Wall* wall : walls_) {
+		// 壁の座標
+		posB = wall->GetWorldPosition();
 
-	//	// 壁の半径を取得
-	//	radiusB = wall->GetRadius();
+		// 壁の半径を取得
+		radiusB = wall->GetRadius();
 
-	//	// 距離を取得
-	//	Vector3 distance;
-	//	distance.x = (posA.x - posB.x) * (posA.x - posB.x);
-	//	distance.y = (posA.y - posB.y) * (posA.y - posB.y);
-	//	distance.z = (posA.z - posB.z) * (posA.z - posB.z);
+		// 球と球の衝突判定
+		if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
+			// 壁の衝突時のコールバック関数を呼び出す
+			wall->OnCollision();
 
-	//	// 球と球の衝突判定
-	//	if (distance.x + distance.y + distance.z <= (radiusA + radiusB) * (radiusA + radiusB)) {
-	//		// 壁の衝突時のコールバック関数を呼び出す（ここでは壁は消える）
-	//		wall->OnCollision();
-
-	//		// 自キャラの衝突時コールバック関数を呼び出す（ライフが減る）
-	//		player_->OnCollision();
-	//	}
-	//}
+			// 自キャラの衝突時コールバック関数を呼び出す
+			if (!player_->IsDamaged()) {
+				player_->OnCollision();
+			}
+		}
+	}
 #pragma endregion
 }
 
