@@ -61,6 +61,8 @@ public:
 
 	Phase GetPhase() const { return phase_; }
 
+	void Dead();
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 

@@ -9,6 +9,8 @@ public:
 
 	void Draw(KamataEngine::Camera& camera);
 
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model2* model_;

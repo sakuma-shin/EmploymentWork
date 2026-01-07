@@ -39,6 +39,4 @@ private:
 	// 半径
 	float radius_ = 0.0f;
 
-	std::list<PlayerBulletParticle*> inkParticles_;
-
 };

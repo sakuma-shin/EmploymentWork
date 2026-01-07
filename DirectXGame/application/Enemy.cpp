@@ -33,7 +33,7 @@ void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t text
 
 	PhaseInitialize();
 
-	size_ = {5.0f, 4.0f, 1.0f};
+	size_ = {4.0f, 4.0f, 1.0f};
 
 	leaveTimer_ = kMaxLeaveTimer_;
 
@@ -168,3 +168,5 @@ Vector3 Enemy::GetWorldPosition() {
 
 	return worldPos;
 }
+
+void Enemy::Dead() { isDead_ = true; }
