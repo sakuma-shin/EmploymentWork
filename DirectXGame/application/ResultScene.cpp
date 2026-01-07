@@ -9,6 +9,10 @@ void ResultScene::Initialize() {
 	camera_.Initialize();
 
 	input_ = Input::GetInstance();
+
+	textureHandle_ = TextureManager::Load("clearScene.png");
+
+	sprite_ = Sprite::Create(textureHandle_, {});
 }
 
 void ResultScene::Update() {
@@ -31,6 +35,8 @@ void ResultScene::Draw() {
 	Model2::PostDraw();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	sprite_->Draw();
 
 	Sprite::PostDraw();
 }

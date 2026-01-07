@@ -63,6 +63,10 @@ void Player::Draw(KamataEngine::Camera& camera) {
 		bullet->Draw(camera);
 	}
 
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Draw(camera);
+	}
+
 	model_->Draw(worldTransform_, camera, &color_);
 }
 
@@ -103,7 +107,13 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		return false;
 	});
 
-	
+	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
+		if (particle->IsDead()) {
+			delete particle;
+			return true;
+		}
+		return false;
+	});
 
 	const float kSpeed = 0.5f;
 
@@ -126,8 +136,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	}
 
 	//// ワールド座標の更新
-	//worldTransform_.translation_.x += move.x;
-	//worldTransform_.translation_.y += move.y;
+	// worldTransform_.translation_.x += move.x;
+	// worldTransform_.translation_.y += move.y;
 
 	const float kMaxTilt = 0.3f;
 	const float kTiltSpeed = 0.2f;
@@ -139,11 +149,9 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	worldTransform_.rotation_.x += (targetRotX - worldTransform_.rotation_.x) * kTiltSpeed;
 	worldTransform_.rotation_.z += (targetRotZ - worldTransform_.rotation_.z) * kTiltSpeed;
 
-	//if (input_->TriggerKey(DIK_R)) {
+	// if (input_->TriggerKey(DIK_R)) {
 	//	life -= 1;
-	//}
-
-	
+	// }
 
 	if (canShot_) {
 		if (input_->TriggerKey(DIK_SPACE)) {
@@ -162,8 +170,6 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 			fireTimer_ = kMaxFireTimer_;
 		}
 	}
-
-	
 
 	// 弾の更新
 	for (PlayerBullet* bullet : bullets_) {
@@ -191,6 +197,11 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	}
 
 	color_.SetColor({color, color, color, alpha});
+
+	// particleの更新
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		particle->Update();
+	}
 }
 
 void Player::DeathRotate() {
@@ -235,5 +246,13 @@ void Player::DeathDisappear() {
 		worldTransform_.scale_.z = startScale.z + (endScale.z - startScale.z) * EaseInBounce(deathTimer_ / MaxDeathTimer[2]);
 	} else {
 		isDead_ = true;
+	}
+}
+
+void Player::GenerateParticle() {
+	for (PlayerBullet* bullet : bullets_) {
+		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
+		newParticle->Initialize(model_, bullet->GetWorldPosition());
+		inkParticles_.push_back(newParticle);
 	}
 }

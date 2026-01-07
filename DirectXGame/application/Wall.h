@@ -29,7 +29,7 @@ public:
 	KamataEngine::Vector3 GetWorldPosition();
 
 	// 半径のGetter
-	float GetRadius() { return radius_; }
+	KamataEngine::Vector3 GetSize() { return size_; }
 
 	// デスフラグのGetter
 	bool IsDead() const { return isDead_; }
@@ -39,8 +39,7 @@ private:
 	KamataEngine::Model2* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 
-	// 半径
-	float radius_ = 0.0f;
+	KamataEngine::Vector3 size_ = {};
 	
 	// デスフラグ
 	bool isDead_ = false;

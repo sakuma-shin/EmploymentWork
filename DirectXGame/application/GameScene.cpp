@@ -248,8 +248,8 @@ void GameScene::UpdateEnemyPopCommands() {
 
 			// Y座標
 			getline(line_stream, word, ',');
-			/*float y = (float)std::atof(word.c_str());*/
-			float y = -30.0f;
+			float y = (float)std::atof(word.c_str());
+			/*float y = -30.0f;*/
 
 			// Z座標
 			getline(line_stream, word, ',');
@@ -268,36 +268,36 @@ void GameScene::UpdateEnemyPopCommands() {
 			float sz = (float)std::atof(word.c_str());
 
 			SpawnWall({x, y, z}, {sx, sy, sz}); // Wall生成関数を呼び出す
-		} else if (word.find("REPEAT_ENEMY")==0) {
+		} else if (word.find("REPEAT_ENEMY") == 0) {
 			getline(line_stream, word, ',');
-			//並べる個数を取得
+			// 並べる個数を取得
 			int32_t count = std::atoi(word.c_str());
 
 			getline(line_stream, word, ',');
-			//戦闘の敵のX座標を取得
+			// 戦闘の敵のX座標を取得
 			float startX = (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			//先頭のY座標
+			// 先頭のY座標
 			float startY = (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			//先頭のZ座標
-			float startZ = playerPosZ+(float)std::atof(word.c_str());
+			// 先頭のZ座標
+			float startZ = playerPosZ + (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			//X座標の間隔
+			// X座標の間隔
 			float offsetX = (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			//Y座標の間隔
+			// Y座標の間隔
 			float offsetY = (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			//Z座標の間隔
+			// Z座標の間隔
 			float offsetZ = (float)std::atof(word.c_str());
 
-			//敵の数だけ敵を生成
+			// 敵の数だけ敵を生成
 			for (int i = 0; i < count; i++) {
 				Vector3 pos;
 
@@ -412,17 +412,14 @@ void GameScene::CheckAllCollisions() {
 				// 自弾の半径
 				radiusB = bullet->GetRadius();
 
-				Vector3 distance;
-				distance.x = (posA - posB).x * (posA - posB).x;
-				distance.y = (posA - posB).y * (posA - posB).y;
-				distance.z = (posA - posB).z * (posA - posB).z;
-
 				// AABBとSphereの衝突判定
 				if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
 					// 敵キャラの衝突時のコールバック関数を呼び出す
 					enemy->OnCollision();
 					// 自弾の衝突時コールバック関数を呼び出す
 					bullet->OnCollision();
+
+					player_->GenerateParticle();
 				}
 			}
 		}
@@ -456,6 +453,8 @@ void GameScene::CheckAllCollisions() {
 
 				// 自弾の衝突時コールバック関数を呼び出す
 				playerBullet->OnCollision();
+
+				player_->GenerateParticle();
 			}
 		}
 	}
@@ -500,16 +499,38 @@ void GameScene::CheckAllCollisions() {
 		posB = wall->GetWorldPosition();
 
 		// 壁の半径を取得
-		radiusB = wall->GetRadius();
+		sizeB = wall->GetSize();
 
 		// 球と球の衝突判定
-		if (IsCollisionAABBtoSphere(posA, sizeA, posB, radiusB)) {
+		if (IsCollisionAABBtoAABB(posA, sizeA, posB, sizeB)) {
 			// 壁の衝突時のコールバック関数を呼び出す
-			wall->OnCollision();
+			/*wall->OnCollision();*/
 
 			// 自キャラの衝突時コールバック関数を呼び出す
 			if (!player_->IsDamaged()) {
 				player_->OnCollision();
+			}
+		}
+	}
+#pragma endregion
+
+#pragma region 自弾と壁の当たり判定
+	for (PlayerBullet* playerBullet : playerBullets) {
+		posA = playerBullet->GetWorldPosition();
+		radiusA = playerBullet->GetRadius();
+
+		for (Wall* wall : walls_) {
+			// 壁の座標
+			posB = wall->GetWorldPosition();
+
+			// 壁の半径を取得
+			sizeB = wall->GetSize();
+
+			// 球と球の衝突判定
+			if (IsCollisionAABBtoSphere(posB, sizeB, posA, radiusA)) {
+				playerBullet->OnCollision();
+
+				player_->GenerateParticle();
 			}
 		}
 	}
@@ -534,7 +555,7 @@ void GameScene::PlayUpdate() {
 		sceneNo = RESULT;
 	}
 
-	if (input_->TriggerKey(DIK_C)) {
+	if (skyDomes_[domeNum - 1]->GetWorldPosition().z <= player_->GetWorldPosition().z) {
 		isClear = true;
 	}
 
@@ -554,6 +575,18 @@ void GameScene::PlayUpdate() {
 		if (clearTimer_ <= 0.0f) {
 			sceneNo = RESULT;
 		}
+	} else {
+		// プレイヤーアップデート
+		player_->Update(playerBulletModel_);
+
+		if (player_->GetState() == Player::State::kPlay) {
+			// レールカメラ更新
+			railCamera_->Update();
+		}
+		camera_.matView = railCamera_->GetCamera().matView;
+		camera_.matProjection = railCamera_->GetCamera().matProjection;
+		// カメラ行列の転送
+		camera_.TransferMatrix();
 	}
 
 	enemies_.remove_if([](Enemy* enemy) {
@@ -564,9 +597,16 @@ void GameScene::PlayUpdate() {
 		return false;
 	});
 
+	Vector3 playerPos = player_->GetWorldPosition();
 	// 敵の更新
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
+
+		Vector3 posB = enemy->GetWorldPosition();
+
+		if (playerPos.z >= posB.z + 20.0f) {
+			enemy->Dead();
+		}
 	}
 	// デスフラグが立った弾を削除
 	enemyBullets_.remove_if([](EnemyBullet* bullet) {
@@ -582,12 +622,9 @@ void GameScene::PlayUpdate() {
 		bullet->Update();
 	}
 
-	// プレイヤーアップデート
-	player_->Update(playerBulletModel_);
-
 	UpdateEnemyPopCommands();
 
-	// ★ 壁のデスフラグ処理を追加
+	// 壁のデスフラグ処理を追加
 	walls_.remove_if([](Wall* wall) {
 		if (wall->IsDead()) {
 			delete wall;
@@ -599,16 +636,12 @@ void GameScene::PlayUpdate() {
 	// ★ 壁の更新
 	for (Wall* wall : walls_) {
 		wall->Update();
-	}
+		Vector3 posB = wall->GetWorldPosition();
 
-	if (player_->GetState() == Player::State::kPlay) {
-		// レールカメラ更新
-		railCamera_->Update();
+		if (playerPos.z >= posB.z + 20.0f) {
+			wall->OnCollision();
+		}
 	}
-	camera_.matView = railCamera_->GetCamera().matView;
-	camera_.matProjection = railCamera_->GetCamera().matProjection;
-	// カメラ行列の転送
-	camera_.TransferMatrix();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_0)) {

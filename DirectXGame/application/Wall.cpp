@@ -13,8 +13,7 @@ void Wall::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 positio
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = scale;
 
-	// スケールから半径を簡易的に算出
-	radius_ = (scale.x + scale.y);
+	size_ = {15.0f, 20.0f, 1.0f};
 
 	isDead_ = false;
 

@@ -46,6 +46,8 @@ public:
 
 	bool IsDamaged() const { return isDamaged_; }
 
+	void GenerateParticle();
+
 private:
 	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
@@ -86,4 +88,6 @@ private:
 
 	int invTime_ = 0;
 	const int kMaxInvtime = 150;
+
+	std::list<PlayerBulletParticle*> inkParticles_;
 };
