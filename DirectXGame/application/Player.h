@@ -79,7 +79,7 @@ private:
 
 	KamataEngine::ObjectColor color_;
 
-	const int32_t kMaxFireTimer_ = 15;
+	const int32_t kMaxFireTimer_ = 45;
 	int32_t fireTimer_ = 0;
 
 	bool canShot_ = false;
@@ -87,7 +87,7 @@ private:
 	bool isDamaged_ = false;
 
 	int invTime_ = 0;
-	const int kMaxInvtime = 150;
+	const int kMaxInvtime = 60;
 
 	std::list<PlayerBulletParticle*> inkParticles_;
 };
