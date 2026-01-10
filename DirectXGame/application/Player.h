@@ -87,7 +87,7 @@ private:
 	bool isDamaged_ = false;
 
 	int invTime_ = 0;
-	const int kMaxInvtime = 60;
+	const int kMaxInvtime = 45;
 
 	std::list<PlayerBulletParticle*> inkParticles_;
 };

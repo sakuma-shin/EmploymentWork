@@ -44,7 +44,6 @@ void Player::Update(KamataEngine::Model2* model) {
 
 	case State::kDeathRotate:
 		DeathRotate();
-		/*color_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});*/
 		break;
 	case State::kDeathDrop:
 		DeathDrop();
