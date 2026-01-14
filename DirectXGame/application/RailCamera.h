@@ -26,6 +26,10 @@ public:
 
 	void DeathRotate(KamataEngine::Vector3 pos);
 
+	KamataEngine::Vector3 GetEndPos_() const { return endPos_; }
+
+	void SetPos(KamataEngine::Vector3 pos) { worldTransform_.translation_ = pos; }
+
 private:
 	KamataEngine::WorldTransform worldTransform_;
 

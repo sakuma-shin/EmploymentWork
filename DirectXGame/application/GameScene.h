@@ -57,6 +57,11 @@ public:
 	/// </summary>
 	void PlayUpdate();
 
+	/// <summary>
+	/// 操作方法説明
+	/// </summary>
+	void Guide();
+
 private:
 	KamataEngine::Camera camera_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -104,6 +109,7 @@ private:
 
 	enum class Phase {
 		START,
+		GUIDE,
 		PLAY
 	};
 
@@ -121,4 +127,14 @@ private:
 	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
 
 	bool isClear = false;
+
+	uint32_t guideTextureHandle_ = 0u;
+	KamataEngine::Sprite* guideSprite_ = nullptr;
+
+	KamataEngine::Sprite* guideSpritePos_ = {};
+
+	uint32_t guideStartTextureHandle_ = 0u;
+	KamataEngine::Sprite* guideStartSprite_ = nullptr;
+
+	KamataEngine::Sprite* guideStartSpritePos_ = {};
 };

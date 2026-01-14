@@ -110,10 +110,23 @@ void GameScene::Initialize() {
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
 	isClear = false;
 	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
+
+	//ガイド用のスプライト
+	guideTextureHandle_ = TextureManager::Load("guide.png");
+
+	guideSprite_ = Sprite::Create(guideTextureHandle_, {0.0f, 0.0f});
+
+	guideStartTextureHandle_ = TextureManager::Load("guideStart.png");
+
+	guideStartSprite_ = Sprite::Create(guideStartTextureHandle_, {0.0f, 620.0f});
+
 }
 
 void GameScene::Update() {
 	switch (phase_) {
+	case Phase::GUIDE:
+		Guide();
+		break;
 	case Phase::START:
 		StartDirection();
 
@@ -171,6 +184,12 @@ void GameScene::Draw() {
 
 	if (isClear) {
 		clearSprite_->Draw();
+	}
+
+	if (phase_ == Phase::GUIDE) {
+		guideSprite_->Draw();
+
+		guideStartSprite_->Draw();
 	}
 
 	Sprite::PostDraw();
@@ -546,7 +565,7 @@ void GameScene::StartDirection() {
 	camera_.TransferMatrix();
 
 	if (railCamera_->IsFinishedStartDirection()) {
-		phase_ = Phase::PLAY;
+		phase_ = Phase::GUIDE;
 	}
 }
 
@@ -658,4 +677,23 @@ void GameScene::PlayUpdate() {
 	}
 
 	CheckAllCollisions();
+}
+
+void GameScene::Guide() {
+	//プレイヤーアップデート
+	player_->Update(playerBulletModel_); 
+
+	if (skyDomes_[domeNum - 1]->GetWorldPosition().z >= player_->GetWorldPosition().z) {
+		railCamera_->Update();
+	}
+	
+
+	camera_.matView = railCamera_->GetCamera().matView;
+	camera_.matProjection = railCamera_->GetCamera().matProjection;
+	// カメラ行列の転送
+	camera_.TransferMatrix();
+
+	if (input_->TriggerKey(DIK_RETURN)) {
+		phase_ = Phase::PLAY;
+	}
 }

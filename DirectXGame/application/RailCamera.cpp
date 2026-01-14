@@ -1,11 +1,11 @@
 #include "RailCamera.h"
-#include"Player.h"
+#include "Player.h"
 
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rotate) { 
-	//ワールドトランスフォームの初期設定
+void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rotate) {
+	// ワールドトランスフォームの初期設定
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = pos;
 	worldTransform_.rotation_ = rotate;
@@ -15,7 +15,7 @@ void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rot
 	endPos_ = worldTransform_.translation_;
 	endPos_.z = 0.0f;
 
-	//カメラの初期化
+	// カメラの初期化
 	camera_.Initialize();
 
 	input_ = Input::GetInstance();
@@ -26,7 +26,7 @@ void RailCamera::Update() {
 	float kSpeed = 0.5f;
 
 	if (input_->PushKey(DIK_A)) {
-	    worldTransform_.translation_.x -= kSpeed;
+		worldTransform_.translation_.x -= kSpeed;
 	}
 
 	if (input_->PushKey(DIK_D)) {
@@ -64,7 +64,11 @@ void RailCamera::Update() {
 
 KamataEngine::WorldTransform& RailCamera::GetWorldTransform() { return worldTransform_; }
 
-void RailCamera::StartDirection() { 
+void RailCamera::StartDirection() {
+
+	if (input_->TriggerKey(DIK_RETURN)) {
+		SetPos(GetEndPos_());
+	}
 	//
 	if (timer_ <= kMaxTimer) {
 		timer_++;
