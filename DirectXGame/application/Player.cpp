@@ -2,6 +2,7 @@
 #include "Easing.h"
 #include <cassert>
 
+
 using namespace KamataEngine;
 using namespace MathUtility;
 

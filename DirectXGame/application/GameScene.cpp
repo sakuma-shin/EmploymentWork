@@ -51,7 +51,8 @@ void GameScene::Initialize() {
 	/*プレイヤー関連初期化*/
 	player_ = new Player();
 	playerModel_ = Model2::CreateFromOBJ("player");
-	Vector3 playerPosition = Vector3(0.0f, 0.0f, 28.0f);
+	Vector3 railCameraDistance = {0.0f, -4.0f, 28.0f};
+	Vector3 playerPosition = {0.0f,-4.0f,28.0f};
 	player_->Initialize(playerModel_, playerPosition);
 
 	playerBulletModel_ = Model2::CreateFromOBJ("playerBullet");
@@ -60,10 +61,11 @@ void GameScene::Initialize() {
 
 	/*レールカメラ初期化*/
 	railCamera_ = new RailCamera();
-	Vector3 railCameraPos = playerPosition;
-	railCameraPos.z = 200.0f;
-	Vector3 railCameraRot = {0.0f, 0.0f, 0.0f};
-	railCamera_->Initialize(railCameraPos, railCameraRot);
+	Vector3 railCameraPos = playerPosition-railCameraDistance;
+	Vector3 startPos = railCameraPos;
+	startPos.z = 200.0f;
+	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
+	railCamera_->Initialize(startPos,railCameraPos,railCameraRot);
 
 	// プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
@@ -389,6 +391,7 @@ void GameScene::CheckAllCollisions() {
 			// 自キャラの衝突時コールバック関数を呼び出す
 			if (!player_->IsDamaged()) {
 				player_->OnCollision();
+				railCamera_->RequestShake(0.8f);
 			}
 		}
 	}
@@ -481,6 +484,7 @@ void GameScene::CheckAllCollisions() {
 				// 自キャラの衝突時コールバック関数を呼び出す
 				if (!player_->IsDamaged()) {
 					player_->OnCollision();
+					railCamera_->RequestShake(0.8f);
 				}
 			}
 		}
@@ -509,6 +513,7 @@ void GameScene::CheckAllCollisions() {
 			// 自キャラの衝突時コールバック関数を呼び出す
 			if (!player_->IsDamaged()) {
 				player_->OnCollision();
+				railCamera_->RequestShake(0.8f);
 			}
 		}
 	}
@@ -576,13 +581,14 @@ void GameScene::PlayUpdate() {
 			sceneNo = RESULT;
 		}
 	} else {
-		// プレイヤーアップデート
-		player_->Update(playerBulletModel_);
 
 		if (player_->GetState() == Player::State::kPlay) {
 			// レールカメラ更新
 			railCamera_->Update();
 		}
+		// プレイヤーアップデート
+		player_->Update(playerBulletModel_);
+
 		camera_.matView = railCamera_->GetCamera().matView;
 		camera_.matProjection = railCamera_->GetCamera().matProjection;
 		// カメラ行列の転送
