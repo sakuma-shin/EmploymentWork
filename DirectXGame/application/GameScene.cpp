@@ -41,12 +41,6 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
-	enemies_.clear();
-
-	enemyBullets_.clear();
-
-	walls_.clear();
-
 	Model2::StaticInitialize();
 
 	worldTransform_.Initialize();
