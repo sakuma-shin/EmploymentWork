@@ -30,6 +30,13 @@ GameScene::~GameScene() {
 		delete wall;
 	}
 	walls_.clear();
+
+	delete door_;
+	delete doorModel_;
+	delete playerBulletModel_;
+	delete EnemyBulletModel_;
+	delete startSprite_;
+	delete clearSprite_;
 }
 
 void GameScene::Initialize() {
@@ -48,24 +55,26 @@ void GameScene::Initialize() {
 
 	input_ = Input::GetInstance();
 
+	Vector3 railCameraDistance = {0.0f, -7.0f, 28.0f};
+	Vector3 playerPosition = {0.0f, -4.0f, 28.0f};
+	Vector3 railCameraPos = playerPosition - railCameraDistance;
+	Vector3 startPos = railCameraPos;
+	startPos.z = 200.0f;
+	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
+
+	/*レールカメラ初期化*/
+	railCamera_ = new RailCamera();
+	railCamera_->Initialize(startPos, railCameraPos, railCameraRot);
+
 	/*プレイヤー関連初期化*/
 	player_ = new Player();
 	playerModel_ = Model2::CreateFromOBJ("player");
-	Vector3 railCameraDistance = {0.0f, -4.0f, 28.0f};
-	Vector3 playerPosition = {0.0f,-4.0f,28.0f};
-	player_->Initialize(playerModel_, playerPosition);
+
+	player_->Initialize(playerModel_, playerPosition, railCameraRot);
 
 	playerBulletModel_ = Model2::CreateFromOBJ("playerBullet");
 
 	EnemyBulletModel_ = Model2::CreateFromOBJ("enemyBullet");
-
-	/*レールカメラ初期化*/
-	railCamera_ = new RailCamera();
-	Vector3 railCameraPos = playerPosition-railCameraDistance;
-	Vector3 startPos = railCameraPos;
-	startPos.z = 200.0f;
-	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
-	railCamera_->Initialize(startPos,railCameraPos,railCameraRot);
 
 	// プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
@@ -112,6 +121,22 @@ void GameScene::Initialize() {
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
 	isClear = false;
 	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
+
+	lifeTextureHandle_ = TextureManager::Load("life.png");
+
+	std::vector<Vector2> lifePos;
+	lifePos.resize(player_->kMaxLife);
+	lifeSprites_.resize(player_->kMaxLife);
+
+	Vector2 lifeSize = {64.0f, 64.0f};
+
+	for (int i = 0; i < lifeSprites_.size(); i++) {
+		lifePos[i] = {36.0f, 36.0f + i * 64.0f};
+
+		lifeSprites_[i] = Sprite::Create(lifeTextureHandle_, lifePos[i]);
+		lifeSprites_[i]->SetTextureRect({}, {64.0f, 64.0f});
+		lifeSprites_[i]->SetSize(lifeSize);
+	}
 }
 
 void GameScene::Update() {
@@ -169,6 +194,10 @@ void GameScene::Draw() {
 		if (railCamera_->GetTimer() >= 90 && railCamera_->GetTimer() <= 120) {
 			startSprite_->Draw();
 		}
+	}
+
+	for (Sprite* sprite : lifeSprites_) {
+		sprite->Draw();
 	}
 
 	if (isClear) {
@@ -639,13 +668,25 @@ void GameScene::PlayUpdate() {
 		return false;
 	});
 
-	// ★ 壁の更新
+	// 壁の更新
 	for (Wall* wall : walls_) {
 		wall->Update();
 		Vector3 posB = wall->GetWorldPosition();
 
 		if (playerPos.z >= posB.z + 20.0f) {
 			wall->OnCollision();
+		}
+	}
+
+	int life = player_->GetLife();
+	int maxLife = player_->kMaxLife;
+	int lostLife = maxLife - life;
+
+	for (int i = 0; i < lifeSprites_.size(); i++) {
+		if (i < lostLife) {
+			lifeSprites_[i]->SetTextureRect({64.0f, 0.0f}, {64.0f, 64.0f});
+		} else {
+			lifeSprites_[i]->SetTextureRect({0.0f, 0.0f}, {64.0f, 64.0f});
 		}
 	}
 

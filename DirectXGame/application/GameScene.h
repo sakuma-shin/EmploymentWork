@@ -57,6 +57,7 @@ public:
 	/// </summary>
 	void PlayUpdate();
 
+
 private:
 	KamataEngine::Camera camera_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -121,4 +122,7 @@ private:
 	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
 
 	bool isClear = false;
+
+	uint32_t lifeTextureHandle_ = 0u;
+	std::vector<Sprite*> lifeSprites_;
 };

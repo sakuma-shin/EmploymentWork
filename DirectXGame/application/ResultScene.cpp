@@ -41,6 +41,8 @@ void ResultScene::Draw() {
 	Sprite::PostDraw();
 }
 
-ResultScene::~ResultScene() { Model2::StaticFinalize();}
+ResultScene::~ResultScene() { 
+	delete sprite_;
+	Model2::StaticFinalize();}
 
 

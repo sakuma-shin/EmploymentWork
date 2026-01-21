@@ -9,7 +9,7 @@ public:
 
 	enum class State { kPlay, kDeathRotate, kDeathDrop, kDeathDisappear };
 
-	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position);
+	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position,KamataEngine::Vector3 rotate);
 
 	void Update(KamataEngine::Model2* model);
 
@@ -48,6 +48,12 @@ public:
 
 	void GenerateParticle();
 
+	void UpdateMatrix() { worldTransform_.UpdateMatrix(); }
+
+	const int kMaxLife = 5;
+
+	int GetLife() const { return life; }
+
 private:
 	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
@@ -56,8 +62,6 @@ private:
 	
 	//大きさ
 	KamataEngine::Vector3 size_ = {};
-
-	const int kMaxLife = 5;
 
 	int life = 0;
 

@@ -6,13 +6,14 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position) {
+void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 rotate) {
 	assert(model);
 	model_ = model;
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ *= 0.5f;
+	worldTransform_.rotation_ = rotate;
 
 	size_ = {1.0f, 4.0f, 1.0f};
 
@@ -73,6 +74,10 @@ void Player::Draw(KamataEngine::Camera& camera) {
 Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
+	}
+
+	for (PlayerBulletParticle* particle : inkParticles_) {
+		delete particle;
 	}
 }
 
