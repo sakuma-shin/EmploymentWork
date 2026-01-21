@@ -11,7 +11,7 @@ using namespace KamataEngine;
 class GameManager {
 private:
 	// シーンを保持するメンバ関数
-	std::unique_ptr<IScene> sceneArr_[3];
+	std::unique_ptr<IScene> scene_;
 
 	int currentSceneNo_;
 	int prevSceneNo_;

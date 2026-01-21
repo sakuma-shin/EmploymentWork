@@ -17,6 +17,8 @@ public:
 	// 全てのパーティクルが死亡したか
 	bool IsDead() const { return particles_.empty(); }
 
+	~PlayerBulletParticle();
+
 	private:
 	std::list<Particle*> particles_;
 	KamataEngine::Model2* model_ = nullptr;

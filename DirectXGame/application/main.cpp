@@ -7,7 +7,7 @@ using namespace KamataEngine;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-	KamataEngine::Initialize(L"LE3C_10_サクマ_シン");
+	KamataEngine::Initialize(L"LE3C_07_サクマ_シン");
 
 	GameManager* gameManager = new GameManager();
 
