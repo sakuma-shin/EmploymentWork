@@ -50,7 +50,7 @@ public:
 
 	void UpdateMatrix() { worldTransform_.UpdateMatrix(); }
 
-	const int kMaxLife = 5;
+	const int kMaxLife = 3;
 
 	int GetLife() const { return life; }
 

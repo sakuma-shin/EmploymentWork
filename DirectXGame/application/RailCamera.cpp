@@ -22,6 +22,7 @@ void RailCamera::Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector
 
 void RailCamera::Update() {
 
+
 	float kSpeed = 0.5f;
 
 	if (input_->PushKey(DIK_A)) {
@@ -48,7 +49,7 @@ void RailCamera::Update() {
 
 	const float kMoveLimitX = 12.0f;
 	const float kMoveLimitUpY = 14.0f;
-	const float kMoveLimitDownY = -7.0f;
+	const float kMoveLimitDownY = -5.0f;
 
 	// 範囲を超えない処理
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
