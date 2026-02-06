@@ -3,41 +3,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-GameScene::~GameScene() {
-	Model2::StaticFinalize();
-	delete player_;
-	delete railCamera_;
-	delete playerModel_;
-	delete skyDomeModel_;
-	for (int i = 0; i < domeNum; i++) {
-		delete skyDomes_[i];
-	}
-	delete debugCamera_;
-	delete enemyModel0_;
-	delete enemyModel1_;
-	delete enemyModel2_;
-	for (Enemy* enemy : enemies_) {
-		delete enemy;
-	}
-	enemies_.clear();
-
-	for (EnemyBullet* enemyBullet : enemyBullets_) {
-		delete enemyBullet;
-	}
-	enemyBullets_.clear();
-
-	for (Wall* wall : walls_) {
-		delete wall;
-	}
-	walls_.clear();
-
-	delete door_;
-	delete doorModel_;
-	delete playerBulletModel_;
-	delete EnemyBulletModel_;
-	delete startSprite_;
-	delete clearSprite_;
-}
+GameScene::~GameScene() { Finalize(); }
 
 void GameScene::Initialize() {
 
@@ -131,6 +97,13 @@ void GameScene::Initialize() {
 		lifeSprites_[i]->SetTextureRect({}, {64.0f, 64.0f});
 		lifeSprites_[i]->SetSize(lifeSize);
 	}
+
+	// ポーズ用スプライトの初期化
+	pauseTextureHandle_ = TextureManager::Load("pause.png");
+	pauseSprite_ = Sprite::Create(pauseTextureHandle_, {1280.0f, 360.0f});
+
+	tabTextureHandle_ = TextureManager::Load("tab.png");
+	tabSprite_ = Sprite::Create(tabTextureHandle_, {0.0f, 0.0f});
 }
 
 void GameScene::Update() {
@@ -142,6 +115,23 @@ void GameScene::Update() {
 
 	case Phase::PLAY:
 		PlayUpdate();
+
+		if (input_->TriggerKey(DIK_TAB)) {
+			phase_ = Phase::PAUSE;
+
+			pauseTimer_ = 0;
+		}
+
+		break;
+
+	case Phase::PAUSE:
+
+		PauseUpdate();
+		if (input_->TriggerKey(DIK_TAB)) {
+			phase_ = Phase::PLAY;
+
+			pauseSprite_->SetPosition({1280.0f, 360.0f});
+		}
 
 		break;
 	}
@@ -184,6 +174,11 @@ void GameScene::Draw() {
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
+	if (phase_ == Phase::PLAY) {
+
+		tabSprite_->Draw();
+	}
+
 	if (phase_ == Phase::START) {
 		if (railCamera_->GetTimer() >= 90 && railCamera_->GetTimer() <= 120) {
 			startSprite_->Draw();
@@ -192,6 +187,11 @@ void GameScene::Draw() {
 
 	for (Sprite* sprite : lifeSprites_) {
 		sprite->Draw();
+	}
+
+	// ポーズ中のみ表示
+	if (phase_ == Phase::PAUSE) {
+		pauseSprite_->Draw();
 	}
 
 	if (isClear) {
@@ -699,4 +699,82 @@ void GameScene::PlayUpdate() {
 	}
 
 	CheckAllCollisions();
+}
+
+void GameScene::PauseUpdate() {
+	if (input_->TriggerKey(DIK_R)) {
+		Finalize();
+		Initialize();
+		return; // 初期化されたので抜ける
+	}
+
+	// イージング処理
+	if (pauseTimer_ < kPauseTotalFrame) {
+		pauseTimer_++;
+	}
+
+	// イージング率 (0.0 ～ 1.0)
+	float t = (float)pauseTimer_ / kPauseTotalFrame;
+
+	// EaseOutSine の例: 1 - cos((t * PI) / 2)
+	float scrollProcess = std::sin((t * 3.141592f) / 2.0f);
+
+	// 右端(1280)から左端(0)へ
+	float startX = 1280.0f;
+	float endX = 0.0f;
+	float currentX = startX + (endX - startX) * scrollProcess;
+
+	pauseSprite_->SetPosition({currentX, 360.0f});
+}
+
+void GameScene::Finalize() {
+	Model2::StaticFinalize();
+	delete player_;
+	player_ = nullptr;
+	delete railCamera_;
+	railCamera_ = nullptr;
+	delete playerModel_;
+	playerModel_ = nullptr;
+	delete skyDomeModel_;
+	skyDomeModel_ = nullptr;
+	for (int i = 0; i < skyDomes_.size(); i++) {
+		delete skyDomes_[i];
+	}
+	skyDomes_.clear();
+	delete debugCamera_;
+	debugCamera_ = nullptr;
+	delete enemyModel0_;
+	enemyModel0_ = nullptr;
+	delete enemyModel1_;
+	enemyModel1_ = nullptr;
+	delete enemyModel2_;
+	enemyModel2_ = nullptr;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
+	enemies_.clear();
+	for (EnemyBullet* enemyBullet : enemyBullets_) {
+		delete enemyBullet;
+	}
+	enemyBullets_.clear();
+	for (Wall* wall : walls_) {
+		delete wall;
+	}
+	walls_.clear();
+	delete door_;
+	door_ = nullptr;
+	delete doorModel_;
+	doorModel_ = nullptr;
+	delete playerBulletModel_;
+	playerBulletModel_ = nullptr;
+	delete EnemyBulletModel_;
+	EnemyBulletModel_ = nullptr;
+	delete startSprite_;
+	startSprite_ = nullptr;
+	delete clearSprite_;
+	clearSprite_ = nullptr;
+	for (Sprite* sprite : lifeSprites_) {
+		delete sprite;
+	}
+	lifeSprites_.clear();
 }

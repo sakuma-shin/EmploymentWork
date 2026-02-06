@@ -57,6 +57,9 @@ public:
 	/// </summary>
 	void PlayUpdate();
 
+	void PauseUpdate();
+
+	void Finalize();
 
 private:
 	KamataEngine::Camera camera_;
@@ -105,7 +108,8 @@ private:
 
 	enum class Phase {
 		START,
-		PLAY
+		PLAY,
+		PAUSE
 	};
 
 	Phase phase_ = Phase::START;
@@ -125,4 +129,14 @@ private:
 
 	uint32_t lifeTextureHandle_ = 0u;
 	std::vector<Sprite*> lifeSprites_;
+
+	// ポーズ演出用
+	uint32_t pauseTextureHandle_ = 0u;
+	KamataEngine::Sprite* pauseSprite_ = nullptr;
+	int32_t pauseTimer_ = 0;
+	const int32_t kPauseTotalFrame = 30; // 移動にかかる時間（フレーム）
+
+	uint32_t tabTextureHandle_ = 0u;
+	KamataEngine::Sprite* tabSprite_ = nullptr;
+
 };
