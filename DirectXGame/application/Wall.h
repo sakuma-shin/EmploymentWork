@@ -2,23 +2,29 @@
 #include "KamataEngine.h"
 #include "Model2.h"
 #include <cstdint>
+#include "BaseObject.h"
 
-class Wall {
+class Wall: public BaseObject{
 public:
 	/// <summary>
-	/// 初期化
+	/// 
 	/// </summary>
-	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 scale, uint32_t textureHandle);
+	/// <param name="model"></param>
+	/// <param name="position"></param>
+	/// <param name="scale"></param>
+	/// <param name="textureHandle"></param>
+	void Initialize(KamataEngine::Model2* model, uint32_t textureHandle) override;
 
 	/// <summary>
-	/// 描画
+	/// 
 	/// </summary>
-	void Draw(KamataEngine::Camera& camera);
+	/// <param name="camera"></param>
+	void Draw(KamataEngine::Camera& camera)override;
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update()override;
 
 	/// <summary>
 	/// 衝突時コールバック
