@@ -1,19 +1,18 @@
 #include "Door.h"
+#include <cassert>
 
 using namespace KamataEngine;
 using namespace MathUtility;
-void Door::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 pos) {
 
-	worldTransform_.Initialize();
+void Door::Initialize(Model2* model, Vector3 pos) {
+	assert(model);
+	BaseInitialize(model, 0u);
 	worldTransform_.translation_ = pos;
 	worldTransform_.UpdateMatrix();
-
-	model_=model;
-
 }
 
 void Door::Update() {
-
+	worldTransform_.UpdateMatrix();
 }
 
-void Door::Draw(KamataEngine::Camera& camera) { model_->Draw(worldTransform_, camera); }
+void Door::Draw(Camera& camera) { BaseObject::Draw(camera); }

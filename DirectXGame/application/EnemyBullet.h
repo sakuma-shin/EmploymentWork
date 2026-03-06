@@ -1,15 +1,17 @@
 #pragma once
-#include"KamataEngine.h"
+#include "BaseObject.h"
+#include "KamataEngine.h"
 #include "Model2.h"
-#include<cassert>
+#include <cassert>
 
-using namespace KamataEngine;
+    using namespace KamataEngine;
 using namespace MathUtility;
-class EnemyBullet {
+
+class EnemyBullet : public BaseObject {
 public:
 	void Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
 
-	void Update();
+	void Update() override;
 
 	void Draw(const KamataEngine::Camera& camera);
 
@@ -24,25 +26,12 @@ public:
 	float GetRadius() { return radius_; }
 
 private:
-	KamataEngine::WorldTransform worldTransform_;
-
-	KamataEngine::Model2* model_ = nullptr;
-
-	KamataEngine::ObjectColor objColor;
-
-	uint32_t textureHandle_ = 0u;
-
 	KamataEngine::Vector3 velocity_;
-
 	// 弾の寿命
 	static const uint32_t kLifeTime = 60 * 5;
-
 	// デスタイマー
 	int32_t deathTimer_ = kLifeTime;
-
 	// デスフラグ
 	bool isDead_ = false;
-
 	float radius_ = 0.0f;
-
 };

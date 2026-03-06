@@ -1,17 +1,14 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Model2.h"
-class SkyDome {
+#include "BaseObject.h"
+
+class SkyDome : public BaseObject {
 public:
-	void Initialize(KamataEngine::Model2* model,float positionZ);
-
-	void Update();
-
-	void Draw(KamataEngine::Camera& camera);
-
+	void Initialize(KamataEngine::Model2* model, float positionZ);
+	void Update() override;
+	void Draw(KamataEngine::Camera& camera) override;
 	KamataEngine::Vector3 GetWorldPosition();
-
 private:
-	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Model2* model_;
+
 };

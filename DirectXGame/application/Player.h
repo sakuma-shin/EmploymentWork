@@ -1,19 +1,20 @@
 #pragma once
+#include "BaseObject.h"
 #include "KamataEngine.h"
 #include "Model2.h"
 #include "PlayerBullet.h"
 #include "PlayerBulletParticle.h"
 #include <list>
-class Player {
-public:
 
+    class Player : public BaseObject {
+public:
 	enum class State { kPlay, kDeathRotate, kDeathDrop, kDeathDisappear };
 
-	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position,KamataEngine::Vector3 rotate);
+	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 rotate);
 
 	void Update(KamataEngine::Model2* model);
 
-	void Draw(KamataEngine::Camera& camera);
+	void Draw(KamataEngine::Camera& camera) override;
 
 	~Player();
 
@@ -56,11 +57,9 @@ public:
 
 private:
 	KamataEngine::Input* input_ = nullptr;
-	KamataEngine::WorldTransform worldTransform_;
+	// worldTransform_ / model_ / color_ are in BaseObject
 
-	KamataEngine::Model2* model_ = nullptr;
-	
-	//大きさ
+	// 大きさ
 	KamataEngine::Vector3 size_ = {};
 
 	int life = 0;
@@ -72,16 +71,12 @@ private:
 	State state_ = State::kPlay;
 
 	float deathTimer_ = 0.0f;
-	
-	const float MaxDeathTimer[3] = {
-	    // 回転するフレーム
-	    30.0f,
-	    // 落ちるフレーム
-	    30.0f,
-	    // 縮まるフレーム
-	    60.0f };
 
-	KamataEngine::ObjectColor color_;
+	const float MaxDeathTimer[3] = {
+	    30.0f, // 回転するフレーム
+	    30.0f, // 落ちるフレーム
+	    60.0f  // 縮まるフレーム
+	};
 
 	const int32_t kMaxFireTimer_ = 45;
 	int32_t fireTimer_ = 0;

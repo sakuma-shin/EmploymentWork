@@ -1,36 +1,32 @@
 #pragma once
-#include"KamataEngine.h"
-#include"Model2.h"
-#include <cassert>
+#include "KamataEngine.h"
+#include "Model2.h"
+
+/// <summary>
+/// ゲーム内オブジェクトの共通親クラス
+/// - WorldTransform, Model2*, textureHandle, ObjectColor を共通化
+/// - 初期化補助(BaseInitialize) と基本的な描画を提供
+/// </summary>
 class BaseObject {
 public:
-	virtual void Initialize() = 0;
+	virtual ~BaseObject() = default;
 
-	virtual void BaseInitialize(KamataEngine::Model2* model, uint32_t textureHandle) {
-		assert(model);
-		model_ = model;
+	// 基本初期化（子クラスの Initialize 内で呼ぶ）
+	void BaseInitialize(KamataEngine::Model2* model, uint32_t textureHandle = 0u);
 
-		worldTransform_.Initialize();
+	// 更新 / 描画（子クラスでオーバーライド可能）
+	virtual void Update() {}
+	virtual void Draw(KamataEngine::Camera& camera);
 
-		isDead_ = false;
-	}
-		
+	// ワールド座標の取得（子クラスで共通利用）
+	KamataEngine::Vector3 GetWorldPosition();
 
-	virtual ~BaseObject();
+	// 親トランスフォームをセット（必要な場合）
+	void SetParent(const KamataEngine::WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
-	//更新処理
-	virtual void Update();
-
-	//描画処理
-	virtual void Draw(KamataEngine::Camera &camera);
-
-	virtual KamataEngine::Vector3 GetWorldPosition();
-
-	virtual bool IsDead() const { return isDead_; }
-
-protected: 
+protected:
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::Model2* model_ = nullptr;
-	bool isDead_ = false;
 	uint32_t textureHandle_ = 0u;
+	KamataEngine::ObjectColor color_;
 };
