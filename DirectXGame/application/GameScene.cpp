@@ -98,7 +98,7 @@ void GameScene::Initialize() {
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	startTextureHandle_ = TextureManager::Load("startFont.png");
-	startSprite_ = Sprite::Create(startTextureHandle_, {0, 120.0f});
+	startSprite_ = Sprite::Create(startTextureHandle_, {0, 296.0f});
 
 	wallModel_ = Model2::CreateFromOBJ("bookshelf");
 	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
@@ -575,6 +575,7 @@ void GameScene::StartDirection() {
 
 	if (railCamera_->IsFinishedStartDirection()) {
 		phase_ = Phase::PLAY;
+		Sleep(200);
 	}
 }
 
