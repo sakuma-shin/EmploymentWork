@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Easing.h"
 #include <cassert>
-
+#include <GpuParticle.h>
 
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -254,10 +254,25 @@ void Player::DeathDisappear() {
 	}
 }
 
+//void Player::GenerateParticle() {
+//	for (PlayerBullet* bullet : bullets_) {
+//		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
+//		newParticle->Initialize(model_, bullet->GetWorldPosition());
+//		inkParticles_.push_back(newParticle);
+//	}
+//}
 void Player::GenerateParticle() {
+	// 既存の CPU パーティクル生成は残す必要があればここを維持してください。
+	// ここでは GPU パーティクルへ発生要求を送る実装に切り替えます。
 	for (PlayerBullet* bullet : bullets_) {
-		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
-		newParticle->Initialize(model_, bullet->GetWorldPosition());
-		inkParticles_.push_back(newParticle);
+		// ワールド変換を取得して GPU へ渡す
+		WorldTransform wt;
+		wt.Initialize();
+		wt.translation_ = bullet->GetWorldPosition();
+		wt.UpdateMatrix();
+		// 色と大きさは必要に応じて調整
+		Vector4 color = {0.29f, 0.0f, 0.42f, 1.0f};
+		Vector2 size = {0.5f, 0.5f};
+		GpuParticleSystem::GetInstance()->Emit(wt, color, size, true);
 	}
 }

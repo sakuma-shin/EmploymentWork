@@ -4893,6 +4893,13 @@ inline HRESULT CD3DX12FeatureSupport::QueryProtectedResourceSessionTypes(UINT No
     return result;
 }
 
+// D3DX12SerializeRootSignature の実装を追加
+// D3D12SerializeRootSignature のラッパー関数
+inline HRESULT D3DX12SerializeRootSignature(const D3D12_ROOT_SIGNATURE_DESC* pRootSignature, D3D_ROOT_SIGNATURE_VERSION Version, ID3DBlob** ppBlob, ID3DBlob** ppErrorBlob) {
+	// D3D12SerializeRootSignature は d3d12.h で宣言されている
+	return D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
+}
+
 #undef FEATURE_SUPPORT_GET
 #undef FEATURE_SUPPORT_GET_NAME
 #undef FEATURE_SUPPORT_GET_NODE_INDEXED

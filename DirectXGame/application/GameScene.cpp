@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "GpuParticle.h"
 #include <fstream>
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -131,6 +132,8 @@ void GameScene::Initialize() {
 		lifeSprites_[i]->SetTextureRect({}, {64.0f, 64.0f});
 		lifeSprites_[i]->SetSize(lifeSize);
 	}
+
+	GpuParticleSystem::GetInstance()->Initialize(1024);
 }
 
 void GameScene::Update() {
@@ -181,6 +184,8 @@ void GameScene::Draw() {
 	}
 
 	Model2::PostDraw();
+
+	GpuParticleSystem::GetInstance()->Draw(camera_);
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
@@ -700,4 +705,6 @@ void GameScene::PlayUpdate() {
 	}
 
 	CheckAllCollisions();
+
+	GpuParticleSystem::GetInstance()->Update();
 }

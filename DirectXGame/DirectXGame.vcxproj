@@ -112,6 +112,7 @@
     <ClCompile Include="application\ExMathUtility.cpp" />
     <ClCompile Include="application\GameManager.cpp" />
     <ClCompile Include="application\GameScene.cpp" />
+    <ClCompile Include="application\GpuParticle.cpp" />
     <ClCompile Include="application\IScene.cpp" />
     <ClCompile Include="application\main.cpp" />
     <ClCompile Include="application\Wall.cpp" />
@@ -126,8 +127,17 @@
     <ClCompile Include="application\skyDome.cpp" />
     <ClCompile Include="application\TitleScene.cpp" />
     <ClCompile Include="engine\WorldTransformEX.cpp" />
+    <ClCompile Include="GpuParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="hlsl Resources\shaders\GpuParticlePS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="hlsl Resources\shaders\GpuParticleVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Resources\shaders\BoxFilterPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -254,6 +264,7 @@
     <ClInclude Include="application\ExMathUtility.h" />
     <ClInclude Include="application\GameManager.h" />
     <ClInclude Include="application\GameScene.h" />
+    <ClInclude Include="application\GpuParticle.h" />
     <ClInclude Include="application\IScene.h" />
     <ClInclude Include="application\Wall.h" />
     <ClInclude Include="application\Door.h" />
@@ -266,6 +277,8 @@
     <ClInclude Include="application\ResultScene.h" />
     <ClInclude Include="application\skyDome.h" />
     <ClInclude Include="application\TitleScene.h" />
+    <ClInclude Include="External\DirectXTex\include\d3dx12.h" />
+    <ClInclude Include="GpuParticle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
