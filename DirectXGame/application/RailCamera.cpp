@@ -4,16 +4,17 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rotate) {
-	// ワールドトランスフォームの初期設定
+
+
+void RailCamera::Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector3 endPos, KamataEngine::Vector3 rotate) { 
+	//ワールドトランスフォームの初期設定
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = pos;
+	worldTransform_.translation_ = startPos;
 	worldTransform_.rotation_ = rotate;
 
 	startPos_ = worldTransform_.translation_;
 
-	endPos_ = worldTransform_.translation_;
-	endPos_.z = 0.0f;
+	endPos_ = endPos;
 
 	// カメラの初期化
 	camera_.Initialize();
@@ -22,6 +23,7 @@ void RailCamera::Initialize(KamataEngine::Vector3 pos, KamataEngine::Vector3 rot
 }
 
 void RailCamera::Update() {
+
 
 	float kSpeed = 0.5f;
 
@@ -48,18 +50,35 @@ void RailCamera::Update() {
 	worldTransform_.rotation_ += radian;
 
 	const float kMoveLimitX = 12.0f;
-	const float kMoveLimitY = 8.0f;
+	const float kMoveLimitUpY = 14.0f;
+	const float kMoveLimitDownY = -5.0f;
 
 	// 範囲を超えない処理
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
+	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitUpY);
+	worldTransform_.translation_.y = max(worldTransform_.translation_.y, kMoveLimitDownY);
 
+	// シェイクタイマーの更新
+	if (shakeTimer_ > 0.0f) {
+		shakeTimer_ -= 1.0f;
+	}
 	worldTransform_.AffineMatrix();
 
 	// カメラのオブジェクトのワールド行列からビュー行列を計算する
-	camera_.matView = Inverse(worldTransform_.matWorld_);
+	Matrix4x4 renderMat = worldTransform_.matWorld_;
+
+	if (shakeTimer_ > 0.0f) {
+		// 強さを減衰させる
+		float ratio = shakeTimer_ / kMaxShakeTimer;
+		float currentIntensity = shakeIntensity_ * ratio;
+
+		// ランダムなオフセットを適用（XとY方向）
+		renderMat.m[3][0] += ((float)rand() / RAND_MAX * 2.0f - 1.0f) * currentIntensity;
+		renderMat.m[3][1] += ((float)rand() / RAND_MAX * 2.0f - 1.0f) * currentIntensity;
+	}
+
+	camera_.matView = Inverse(renderMat);
 }
 
 KamataEngine::WorldTransform& RailCamera::GetWorldTransform() { return worldTransform_; }
@@ -73,7 +92,7 @@ void RailCamera::StartDirection() {
 	if (timer_ <= kMaxTimer) {
 		timer_++;
 		if (timer_ <= kMoveTimer) {
-			worldTransform_.translation_.z = startPos_.z + (endPos_.z - startPos_.z) * EaseInOutCubic(timer_ / kMaxTimer);
+			worldTransform_.translation_.z = startPos_.z + (endPos_.z - startPos_.z) * EaseInOutCubic(timer_ / kMoveTimer);
 		}
 	}
 	worldTransform_.AffineMatrix();

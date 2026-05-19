@@ -9,7 +9,10 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 
 	model_ = particleModel;
 
-	particles_.clear(); // 既にパーティクルが存在する場合はクリア
+	for (Particle* particle : particles_) {
+		delete particle;
+	}
+	particles_.clear();
 
 	// パーティクルの数
 	const int kNumParticles = 10;
@@ -22,7 +25,6 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 
 	// 乱数エンジンのシードを初期化
 	randomEngine_.seed(static_cast<unsigned int>(std::time(nullptr)));
-
 
 	for (int i = 0; i < kNumParticles; ++i) {
 		// 方向と速度を生成
@@ -68,5 +70,11 @@ void PlayerBulletParticle::Draw(Camera& camera) {
 	// パーティクルごとの Draw を実行
 	for (Particle* particle : particles_) {
 		particle->Draw(camera);
+	}
+}
+
+PlayerBulletParticle::~PlayerBulletParticle() {
+	for (Particle* particle : particles_) {
+		delete particle;
 	}
 }

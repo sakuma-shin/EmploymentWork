@@ -57,10 +57,12 @@ public:
 	/// </summary>
 	void PlayUpdate();
 
+
 	/// <summary>
 	/// 操作方法説明
 	/// </summary>
 	void Guide();
+
 
 private:
 	KamataEngine::Camera camera_;
@@ -128,6 +130,7 @@ private:
 
 	bool isClear = false;
 
+
 	uint32_t guideTextureHandle_ = 0u;
 	KamataEngine::Sprite* guideSprite_ = nullptr;
 
@@ -137,4 +140,8 @@ private:
 	KamataEngine::Sprite* guideStartSprite_ = nullptr;
 
 	KamataEngine::Sprite* guideStartSpritePos_ = {};
+
+	uint32_t lifeTextureHandle_ = 0u;
+	std::vector<Sprite*> lifeSprites_;
+
 };
