@@ -44,6 +44,7 @@ public:
 	/// <param name="commandList">コマンドリスト</param>
 	void PreDraw(ID3D12GraphicsCommandList* commandList);
 
+
 	/// <summary>
 	/// 描画後処理
 	/// </summary>
