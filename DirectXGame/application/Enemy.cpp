@@ -9,7 +9,10 @@ using namespace MathUtility;
 
 Enemy::Enemy() {}
 
-Enemy::~Enemy() {}
+Enemy::~Enemy() {
+	delete approachState_;
+	delete leaveState_;
+}
 
 void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel) {
 	// NULLポインタチェック
@@ -31,6 +34,12 @@ void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t text
 
 	worldTransform_.scale_ *= 0.7f;
 
+	// 状態のインスタンス生成
+	approachState_ = new EnemyStateApproach();
+	leaveState_ = new EnemyStateLeave();
+
+	// 初期状態の設定
+	state_ = approachState_;
 	PhaseInitialize();
 
 	size_ = {4.0f, 4.0f, 1.0f};
@@ -46,34 +55,24 @@ void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t text
 
 void Enemy::Update() {
 
-	switch (phase_) {
-	case Phase::Approach:
-
-		Approach();
-
-		break;
-
-	case Phase::Leave:
-
-		Leave();
-
-		break;
+	// switch文を削除し、現在の状態クラスにUpdateを委譲する
+	if (state_) {
+		state_->Update(this);
 	}
-
 	worldTransform_.UpdateMatrix();
 }
 
 void Enemy::Draw(Camera& camera) {
 	if (!models_.empty()) {
-		if (phase_ == Phase::Approach) {
+		if (state_ == approachState_) {
 			models_[currentModelIndex_]->Draw(worldTransform_, camera, textureHandle_, &color_);
-		} else if (phase_ == Phase::Leave) {
+		} else if (state_ == leaveState_) {
 			models_[0]->Draw(worldTransform_, camera, textureHandle_, &color_);
 		}
 	}
 }
 
-void Enemy::OnCollision() { phase_ = Phase::Leave; }
+void Enemy::OnCollision() { ChangeState(leaveState_); }
 
 void Enemy::Approach() {
 
@@ -152,7 +151,7 @@ void Enemy::PhaseInitialize() {
 	// 発射タイマーを初期化
 	fireTimer_ = kFireInterval;
 
-	if (phase_ == Phase::Leave) { 
+	if (state_ == leaveState_) { 
 		leaveTimer_ = kLeaveDuration;
 		initialTranslation_ = worldTransform_.translation_; 
 	}
@@ -168,5 +167,12 @@ Vector3 Enemy::GetWorldPosition() {
 
 	return worldPos;
 }
+
+void Enemy::ChangeState(IEnemyState* newState) {
+	state_ = newState;
+	PhaseInitialize(); // 状態が切り替わったときの初期化
+}
+
+bool Enemy::IsApproachState() const { return state_ == approachState_; }
 
 void Enemy::Dead() { isDead_ = true; }

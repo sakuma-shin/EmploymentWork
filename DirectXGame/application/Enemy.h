@@ -5,6 +5,7 @@
 #include"Model2.h"
 #include "IScene.h"
 #include<vector>
+#include "EnemyState.h"
 
 class Player;
 class GameScene;
@@ -33,10 +34,10 @@ public:
 	///</summary>
 	void Leave();
 
-	enum class Phase {
-		Approach, // 接近する
-		Leave,    // 離脱する
-	};
+	// 状態を変更する関数を追加
+	void ChangeState(IEnemyState* newState);
+
+	bool IsApproachState() const;
 
 	void Fire();
 
@@ -59,8 +60,6 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
-	Phase GetPhase() const { return phase_; }
-
 	void Dead();
 
 private:
@@ -80,7 +79,12 @@ private:
 
 	KamataEngine::Vector3 velocity_ = {};
 
-	Phase phase_ = Phase::Approach;
+	IEnemyState* state_ = nullptr;
+
+	// メモリリーク防止のため、現在の状態を保持する
+	IEnemyState* approachState_ = nullptr;
+	IEnemyState* leaveState_ = nullptr;
+
 
 	static const int kLeaveDuration = 60;
 	int32_t leaveTimer_ = 0;
