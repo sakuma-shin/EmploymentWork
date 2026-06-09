@@ -55,6 +55,7 @@ public:
 	ID3D12GraphicsCommandList* GetCommandList() const { return commandList_; }
 	ObjectColor* GetObjectColor() const { return defaultObjectColor_.get(); }
 
+
 private:
 	ModelCommon2() = default;
 	~ModelCommon2() = default;
