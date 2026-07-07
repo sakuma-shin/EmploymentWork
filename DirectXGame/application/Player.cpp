@@ -1,10 +1,12 @@
 #include "Player.h"
+#include "GameConstants.h"
 #include "Easing.h"
 #include <cassert>
 
 
 using namespace KamataEngine;
 using namespace MathUtility;
+using namespace GameConstants;
 
 void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 rotate) {
 	assert(model);
@@ -120,7 +122,7 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		return false;
 	});
 
-	const float kSpeed = 0.5f;
+	const float kSpeed = PLAYER_MOVE_SPEED;
 
 	Vector3 move = {0.0f, 0.0f, 0.0f};
 
@@ -144,8 +146,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	// worldTransform_.translation_.x += move.x;
 	// worldTransform_.translation_.y += move.y;
 
-	const float kMaxTilt = 0.3f;
-	const float kTiltSpeed = 0.2f;
+	const float kMaxTilt = PLAYER_MAX_TILT;
+	const float kTiltSpeed = PLAYER_TILT_SPEED;
 
 	float targetRotX = -move.y / kSpeed * kMaxTilt;
 
@@ -162,7 +164,7 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			// 弾
 			PlayerBullet* newBullet = new PlayerBullet();
-			float bulletSpeed = 2.0f;
+			float bulletSpeed = PLAYER_BULLET_SPEED;
 			Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
 			newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
 			bullets_.push_back(newBullet);

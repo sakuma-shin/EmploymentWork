@@ -252,6 +252,7 @@
     <ClInclude Include="application\Enemy.h" />
     <ClInclude Include="application\EnemyBullet.h" />
     <ClInclude Include="application\ExMathUtility.h" />
+    <ClInclude Include="application\GameConstants.h" />
     <ClInclude Include="application\GameManager.h" />
     <ClInclude Include="application\GameScene.h" />
     <ClInclude Include="application\IScene.h" />

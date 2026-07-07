@@ -1,7 +1,9 @@
 #include "GameScene.h"
 #include <fstream>
+#include "GameConstants.h"
 using namespace KamataEngine;
 using namespace MathUtility;
+using namespace GameConstants;
 
 GameScene::~GameScene() {
 	Model2::StaticFinalize();
@@ -49,12 +51,12 @@ void GameScene::Initialize() {
 
 	input_ = Input::GetInstance();
 
-	Vector3 railCameraDistance = {0.0f, -7.0f, 28.0f};
-	Vector3 playerPosition = {0.0f, -4.0f, 28.0f};
+	Vector3 railCameraDistance = {RAIL_CAMERA_DISTANCE_X, RAIL_CAMERA_DISTANCE_Y, RAIL_CAMERA_DISTANCE_Z};
+	Vector3 playerPosition = {PLAYER_INIT_X, PLAYER_INIT_Y, PLAYER_INIT_Z};
 	Vector3 railCameraPos = playerPosition - railCameraDistance;
 	Vector3 startPos = railCameraPos;
-	startPos.z = 200.0f;
-	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
+	startPos.z = RAIL_CAMERA_START_POS_Z;
+	Vector3 railCameraRot = {RAIL_CAMERA_ROT_X, 0.0f, 0.0f};
 
 	/*レールカメラ初期化*/
 	railCamera_ = new RailCamera();
@@ -75,7 +77,7 @@ void GameScene::Initialize() {
 
 	skyDomeModel_ = Model2::CreateFromOBJ("skyCube");
 	skyDomes_.resize(domeNum);
-	const float distance = 30.0f;
+	const float distance = SKYDOME_DISTANCE;
 	/*天球*/
 	for (int i = 0; i < skyDomes_.size(); i++) {
 		skyDomes_[i] = new SkyDome();

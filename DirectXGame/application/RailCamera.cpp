@@ -1,8 +1,10 @@
 #include "RailCamera.h"
 #include"Player.h"
+#include "GameConstants.h"
 
 using namespace KamataEngine;
 using namespace MathUtility;
+using namespace GameConstants;
 
 void RailCamera::Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector3 endPos, KamataEngine::Vector3 rotate) { 
 	//ワールドトランスフォームの初期設定
@@ -23,7 +25,7 @@ void RailCamera::Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector
 void RailCamera::Update() {
 
 
-	float kSpeed = 0.5f;
+	float kSpeed = RAIL_CAMERA_MOVE_SPEED;
 
 	if (input_->PushKey(DIK_A)) {
 		worldTransform_.translation_.x -= kSpeed;

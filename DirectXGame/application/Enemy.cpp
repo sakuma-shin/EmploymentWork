@@ -3,9 +3,11 @@
 #include "GameScene.h"
 #include "Player.h"
 #include "Easing.h"
+#include "GameConstants.h"
 
 using namespace KamataEngine;
 using namespace MathUtility;
+using namespace GameConstants;
 
 Enemy::Enemy() {}
 
@@ -25,15 +27,15 @@ void Enemy::Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t text
 	// 引数からpositionを代入して初期座標を設定
 	worldTransform_.translation_ = position;
 
-	worldTransform_.rotation_.x = 3.0f;
+	worldTransform_.rotation_.x = ENEMY_INIT_ROT_X;
 
-	worldTransform_.rotation_.y = 1.6f;
+	worldTransform_.rotation_.y = ENEMY_INIT_ROT_Y;
 
-	worldTransform_.scale_ *= 0.7f;
+	worldTransform_.scale_ *= ENEMY_SCALE_FACTOR;
 
 	PhaseInitialize();
 
-	size_ = {4.0f, 4.0f, 1.0f};
+	size_ = {ENEMY_SIZE_X, ENEMY_SIZE_Y, ENEMY_SIZE_Z};
 
 	leaveTimer_ = kMaxLeaveTimer_;
 
@@ -90,7 +92,7 @@ void Enemy::Approach() {
 	}
 
 	// 速度の初期化
-	const float kSpeed = -0.05f;
+	const float kSpeed = ENEMY_APPROACH_SPEED_Z;
 	velocity_ = {0.0f, 0.0f, kSpeed};
 
 	// 敵の移動
@@ -110,12 +112,12 @@ void Enemy::Approach() {
 void Enemy::Leave() {
 	if (leaveTimer_ > 0) {
 
-		worldTransform_.rotation_.z = -1.5f;
+		worldTransform_.rotation_.z = ENEMY_LEAVE_ROT_Z;
 
 		// タイマーを減らす
 		leaveTimer_--;
 	
-		float downVelocity = -0.4f;
+		float downVelocity = ENEMY_LEAVE_DOWN_VELOCITY;
 
 		worldTransform_.translation_.y += downVelocity;
 
@@ -138,7 +140,7 @@ void Enemy::Fire() {
 
 	Vector3 enemyPos = GetWorldPosition();
 
-	Vector3 BulletVelocity = {0.0f, 0.0f, -0.5f};
+	Vector3 BulletVelocity = {0.0f, 0.0f, ENEMY_BULLET_SPEED_Z};
 
 	// 弾を生成し初期化
 	EnemyBullet* newBullet = new EnemyBullet();
