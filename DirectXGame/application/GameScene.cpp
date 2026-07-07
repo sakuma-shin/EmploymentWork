@@ -8,11 +8,7 @@ GameScene::~GameScene() {
 	delete playerModel_;
 	delete skyDomeModel_;
 	// skyDomes_ and player_/railCamera_/door_/debugCamera_ are managed by unique_ptr now
-	// Delete sky domes (they are still raw pointers)
-	for (SkyDome* dome : skyDomes_) {
-		delete dome;
-	}
-	skyDomes_.clear();
+	// no manual deletion required for those
 	delete enemyModel0_;
 	delete enemyModel1_;
 	delete enemyModel2_;
