@@ -5,38 +5,6 @@ using namespace MathUtility;
 
 GameScene::~GameScene() {
 	Model2::StaticFinalize();
-	delete player_;
-	delete railCamera_;
-	delete playerModel_;
-	delete skyDomeModel_;
-	for (int i = 0; i < domeNum; i++) {
-		delete skyDomes_[i];
-	}
-	delete debugCamera_;
-	delete enemyModel0_;
-	delete enemyModel1_;
-	delete enemyModel2_;
-	for (Enemy* enemy : enemies_) {
-		delete enemy;
-	}
-	enemies_.clear();
-
-	for (EnemyBullet* enemyBullet : enemyBullets_) {
-		delete enemyBullet;
-	}
-	enemyBullets_.clear();
-
-	for (Wall* wall : walls_) {
-		delete wall;
-	}
-	walls_.clear();
-
-	delete door_;
-	delete doorModel_;
-	delete playerBulletModel_;
-	delete EnemyBulletModel_;
-	delete startSprite_;
-	delete clearSprite_;
 }
 
 void GameScene::Initialize() {
@@ -57,12 +25,12 @@ void GameScene::Initialize() {
 	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
 
 	/*レールカメラ初期化*/
-	railCamera_ = new RailCamera();
+	railCamera_ = std::make_unique<RailCamera>();
 	railCamera_->Initialize(startPos, railCameraPos, railCameraRot);
 
 	/*プレイヤー関連初期化*/
-	player_ = new Player();
-	playerModel_ = Model2::CreateFromOBJ("player");
+	player_ = std::make_unique<Player>();
+	playerModel_ = std::unique_ptr<Model2>(Model2::CreateFromOBJ("player"));
 
 	player_->Initialize(playerModel_, playerPosition, railCameraRot);
 
@@ -201,14 +169,15 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 }
 
-void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
-	// リストに登録する
-	enemyBullets_.push_back(enemyBullet);
+void GameScene::AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet) {
+	enemyBullets_.push_back(std::move(enemyBullet));
 }
 
 void GameScene::LoadEnemyPopData() {
 	enemyPopCommands.clear();
 	enemyPopCommands.str("");
+
+
 
 	// ファイルを開く
 	std::ifstream file;

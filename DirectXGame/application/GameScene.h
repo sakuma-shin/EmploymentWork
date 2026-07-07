@@ -1,128 +1,64 @@
 #pragma once
-#include "KamataEngine.h"
-#include"Model2.h"
+#include "Door.h"
+#include "Enemy.h"
+#include "EnemyBullet.h"
+#include "ExMathUtility.h"
 #include "IScene.h"
-#include<vector>
-#include"Player.h"
-#include"RailCamera.h"
-#include"skyDome.h"
-#include"Enemy.h"
-#include"EnemyBullet.h"
-#include"Wall.h"
-#include"ExMathUtility.h"
-#include"Door.h"
+#include "KamataEngine.h"
+#include "Model2.h"
+#include "Player.h"
+#include "RailCamera.h"
+#include "Wall.h"
+#include "skyDome.h"
+#include <list>
+#include <memory>
+#include <sstream>
+#include <vector>
 
-class GameScene:public IScene{
+class GameScene : public IScene {
 public:
-	~GameScene();
+	~GameScene() = default;
 
 	void Initialize() override;
 	void Update() override;
 	void Draw() override;
 
-	//<summary>
-	// 敵弾を追加する
-	//</summary>
-	void AddEnemyBullet(EnemyBullet* enemyBullet);
-
-	// 弾リストを取得
-	const std::list<EnemyBullet*>& GetBullets() const { return enemyBullets_; }
-
-	//<summary>
-	// 敵発生データの読み込み
-	//</summary>
+	void AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet);
 	void LoadEnemyPopData();
-
-	//<summary>
-	// 敵発生コマンドの更新
-	//</summary>
 	void UpdateEnemyPopCommands();
-
 	void SpawnEnemy(KamataEngine::Vector3 spawnPos);
-
 	void SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale);
 
-	//<summary>
-	// 衝突判定と応答
-	//</summary>
-	void CheckAllCollisions();
-
-	/// <summary>
-	/// スタート演出
-	/// </summary>
-	void StartDirection();
-
-	/// <summary>
-	/// プレイ中の更新処置
-	/// </summary>
-	void PlayUpdate();
-
-
 private:
-	KamataEngine::Camera camera_;
 	KamataEngine::WorldTransform worldTransform_;
-
 	KamataEngine::Input* input_ = nullptr;
+	KamataEngine::Camera camera_;
 
-	///*player関連*///
-	Player* player_ = nullptr;
-	KamataEngine::Model2* playerModel_ = nullptr;
-	RailCamera* railCamera_ = nullptr;
+	std::unique_ptr<Player> player_;
+	std::unique_ptr<KamataEngine::Model2> playerModel_;
+	std::unique_ptr<RailCamera> railCamera_;
 
-	const int domeNum =50;
-	std::vector <SkyDome*> skyDomes_;
+	const int domeNum = 50;
+	std::vector<std::unique_ptr<SkyDome>> skyDomes_;
+	std::unique_ptr<Door> door_;
+	std::unique_ptr<KamataEngine::Model2> doorModel_;
 
-	Door* door_ = nullptr;
-	KamataEngine::Model2* doorModel_ = nullptr;
-
-
-	///*enemy関連*///
-	std::list<Enemy*> enemies_;
+	std::list<std::unique_ptr<Enemy>> enemies_;
 	uint32_t enemyTextureHandle_ = 0u;
-	KamataEngine::Model2* enemyModel0_ = nullptr;
-	KamataEngine::Model2* enemyModel1_ = nullptr;
-	KamataEngine::Model2* enemyModel2_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> enemyModel0_;
+	std::unique_ptr<KamataEngine::Model2> enemyModel1_;
+	std::unique_ptr<KamataEngine::Model2> enemyModel2_;
+	std::unique_ptr<KamataEngine::Model2> skyDomeModel_;
 
-	KamataEngine::Model2* skyDomeModel_ = nullptr;
-
-	std::list<EnemyBullet*> enemyBullets_;
-
-	// 敵発生コマンド
+	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
 	std::stringstream enemyPopCommands;
 
 	int32_t spawnTimer_ = 0;
 	bool isSpawn_ = false;
 
-	// 壁
-	std::list<Wall*> walls_;
-	KamataEngine::Model2* wallModel_ = nullptr;
+	std::list<std::unique_ptr<Wall>> walls_;
+	std::unique_ptr<KamataEngine::Model2> wallModel_;
 	uint32_t wallTextureHandle_ = 0u;
 
-	// デバッグカメラ
-	KamataEngine::DebugCamera* debugCamera_ = nullptr;
-
-	bool isDebugCameraActive_ = false;
-
-	enum class Phase {
-		START,
-		PLAY
-	};
-
-	Phase phase_ = Phase::START;
-
-	uint32_t startTextureHandle_ = 0u;
-	KamataEngine::Sprite* startSprite_ = nullptr;
-
-	uint32_t clearTextureHandle_ = 0u;
-	int clearTimer_ = 0;
-	KamataEngine::Sprite* clearSprite_ = nullptr;
-
-	KamataEngine::Model2* playerBulletModel_ = nullptr;
-
-	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
-
-	bool isClear = false;
-
-	uint32_t lifeTextureHandle_ = 0u;
-	std::vector<Sprite*> lifeSprites_;
+	std::unique_ptr<KamataEngine::DebugCamera> debugCamera_;
 };
