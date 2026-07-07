@@ -3,6 +3,9 @@
 #include"KamataEngine.h"
 #include"Model2.h"
 
+/// <summary>
+/// パーティクルクラスから派生した、プレイヤーの弾が消滅したときに発生するパーティクルを管理するクラス
+/// </summary>
 class PlayerBulletParticle {
 public:
 	// 全パーティクル生成（爆発的な発生）

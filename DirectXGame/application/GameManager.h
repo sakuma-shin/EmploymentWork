@@ -8,6 +8,9 @@
 #include"KamataEngine.h"
 using namespace KamataEngine;
 
+/// <summary>
+/// ゲーム全体のシーン管理をするクラス
+/// </summary>
 class GameManager {
 private:
 	// シーンを保持するメンバ関数

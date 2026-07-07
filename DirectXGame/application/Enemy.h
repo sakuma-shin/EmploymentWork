@@ -9,6 +9,9 @@
 class Player;
 class GameScene;
 
+/// <summary>
+/// 敵を実装するクラス
+/// </summary>
 class Enemy {
 public:
 	Enemy();

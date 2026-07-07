@@ -1,6 +1,10 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Model2.h"
+
+/// <summary>
+/// ステージクリア後に演出として開く扉を実装するクラス
+/// </summary>
 class Door {
 public:
 	/// <summary>

@@ -5,6 +5,9 @@
 #include"Easing.h"
 #include"Player.h"
 
+/// <summary>
+/// タイトル画面を管理するクラス
+/// </summary>
 class TitleScene : public IScene {
 public:
 	void Initialize()override;

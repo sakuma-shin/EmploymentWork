@@ -2,6 +2,9 @@
 
 enum Scene { TITLE, STAGE,RESULT };
 
+/// <summary>
+/// シーンの共通処理をまとめた親クラス
+/// </summary>
 class IScene {
 protected:
 	static int sceneNo;

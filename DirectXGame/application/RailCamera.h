@@ -2,6 +2,9 @@
 #include"KamataEngine.h"
 #include"Easing.h"
 
+/// <summary>
+/// プレイヤーを追従するカメラを実装するクラス
+/// </summary>
 class RailCamera {
 public:
 	// 初期化

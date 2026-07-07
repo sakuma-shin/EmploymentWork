@@ -1,6 +1,10 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Model2.h"
+
+/// <summary>
+/// 天球を管理するクラス
+/// </summary>
 class SkyDome {
 public:
 	void Initialize(KamataEngine::Model2* model,float positionZ);

@@ -3,6 +3,9 @@
 #include "KamataEngine.h"
 #include "Model2.h"
 
+/// <summary>
+/// 結果画面を管理するクラス
+/// </summary>
 class ResultScene:public IScene {
 public:
 	void Initialize() override;

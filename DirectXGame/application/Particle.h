@@ -4,7 +4,9 @@
 #include <list>
 #include <random>
 
+/// <summary>
 // Particleクラスは単一のパーティクルを表す
+/// </summary>
 class Particle {
 public:
 	// 初期化

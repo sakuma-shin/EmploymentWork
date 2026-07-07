@@ -2,6 +2,9 @@
 #include "KamataEngine.h"
 #include"Model2.h"
 #include "PlayerBulletParticle.h"
+/// <summary>
+/// プレイヤーの弾を実装するクラス
+/// </summary>
 class PlayerBullet {
 public:
 	// 初期化

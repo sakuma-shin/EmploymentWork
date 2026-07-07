@@ -3,6 +3,9 @@
 #include "Model2.h"
 #include <cstdint>
 
+/// <summary>
+/// ステージギミックである壁を実装するクラス
+/// </summary>
 class Wall {
 public:
 	/// <summary>

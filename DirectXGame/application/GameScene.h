@@ -12,6 +12,9 @@
 #include"ExMathUtility.h"
 #include"Door.h"
 
+/// <summary>
+/// ゲームプレイシーンを実装するクラス
+/// </summary>
 class GameScene:public IScene{
 public:
 	~GameScene();

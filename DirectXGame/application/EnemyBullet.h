@@ -5,6 +5,10 @@
 
 using namespace KamataEngine;
 using namespace MathUtility;
+
+/// <summary>
+/// 敵の弾を実装するクラス
+/// </summary>
 class EnemyBullet {
 public:
 	void Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);

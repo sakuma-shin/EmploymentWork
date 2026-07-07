@@ -4,6 +4,10 @@
 #include "PlayerBullet.h"
 #include "PlayerBulletParticle.h"
 #include <list>
+
+/// <summary>
+/// プレイヤーを実装するクラス
+/// </summary>
 class Player {
 public:
 
