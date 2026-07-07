@@ -4,7 +4,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void EnemyBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const Vector3& velocity) {
+void EnemyBullet::Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity) {
 	// NULLポインタチェック
 	assert(model);
 

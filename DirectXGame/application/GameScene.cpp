@@ -351,7 +351,7 @@ void GameScene::UpdateEnemyPopCommands() {
 	}
 }
 
-void GameScene::SpawnEnemy(Vector3 spawnPos) {
+void GameScene::SpawnEnemy(const Vector3& spawnPos) {
 
 	// 敵生成時
 	std::vector<KamataEngine::Model2*> enemyModels;
@@ -371,7 +371,7 @@ void GameScene::SpawnEnemy(Vector3 spawnPos) {
 	enemies_.push_back(newEnemy);
 }
 
-void GameScene::SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale) {
+void GameScene::SpawnWall(const KamataEngine::Vector3& spawnPos, const KamataEngine::Vector3& spawnScale) {
 	Wall* newWall = new Wall();
 	newWall->Initialize(wallModel_, spawnPos, spawnScale, wallTextureHandle_);
 	walls_.push_back(newWall);

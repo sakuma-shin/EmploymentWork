@@ -4,7 +4,7 @@
 
 using namespace KamataEngine;
 
-void Wall::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 scale, uint32_t textureHandle) {
+void Wall::Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& scale, uint32_t textureHandle) {
 	assert(model);
 	model_ = model;
 	textureHandle_ = textureHandle;

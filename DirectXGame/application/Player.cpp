@@ -6,7 +6,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void Player::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 rotate) {
+void Player::Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotate) {
 	assert(model);
 	model_ = model;
 

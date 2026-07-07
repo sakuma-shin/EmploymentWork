@@ -5,7 +5,7 @@
 class RailCamera {
 public:
 	// 初期化
-	void Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector3 endPos,KamataEngine::Vector3 rotate);
+	void Initialize(const KamataEngine::Vector3& startPos, const KamataEngine::Vector3& endPos, const KamataEngine::Vector3& rotate);
 
 	// 更新
 	void Update();

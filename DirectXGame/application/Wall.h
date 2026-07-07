@@ -8,7 +8,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position, KamataEngine::Vector3 scale, uint32_t textureHandle);
+	void Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& scale, uint32_t textureHandle);
 
 	/// <summary>
 	/// 描画

@@ -38,9 +38,9 @@ public:
 	//</summary>
 	void UpdateEnemyPopCommands();
 
-	void SpawnEnemy(KamataEngine::Vector3 spawnPos);
+	void SpawnEnemy(const KamataEngine::Vector3& spawnPos);
 
-	void SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale);
+	void SpawnWall(const KamataEngine::Vector3& spawnPos, const KamataEngine::Vector3& spawnScale);
 
 	//<summary>
 	// 衝突判定と応答

@@ -9,7 +9,7 @@ public:
 
 	enum class State { kPlay, kDeathRotate, kDeathDrop, kDeathDisappear };
 
-	void Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 position,KamataEngine::Vector3 rotate);
+	void Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotate);
 
 	void Update(KamataEngine::Model2* model);
 

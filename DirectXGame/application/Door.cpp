@@ -2,7 +2,7 @@
 
 using namespace KamataEngine;
 using namespace MathUtility;
-void Door::Initialize(KamataEngine::Model2* model, KamataEngine::Vector3 pos) {
+void Door::Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& pos) {
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = pos;

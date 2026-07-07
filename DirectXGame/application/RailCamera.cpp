@@ -4,7 +4,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void RailCamera::Initialize(KamataEngine::Vector3 startPos, KamataEngine::Vector3 endPos, KamataEngine::Vector3 rotate) { 
+void RailCamera::Initialize(const KamataEngine::Vector3& startPos, const KamataEngine::Vector3& endPos, const KamataEngine::Vector3& rotate) { 
 	//ワールドトランスフォームの初期設定
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = startPos;

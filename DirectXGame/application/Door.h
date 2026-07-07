@@ -6,7 +6,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(KamataEngine::Model2* model,KamataEngine::Vector3 pos);
+	void Initialize(KamataEngine::Model2* model, const KamataEngine::Vector3& pos);
 
 	/// <summary>
 	/// 更新
