@@ -17,10 +17,24 @@ public:
 	Enemy();
 	~Enemy();
 
+	/// <summary>
+	/// 敵の初期化
+	/// </summary>
+	/// <param name="models 使用するモデル"></param>
+	/// <param name="textureHandle モデルに張り付けるテクスチャ"></param>
+	/// <param name="position" 発生させる位置></param>
+	/// <param name="bulletModel 弾のモデル"></param>
 	void Initialize(std::vector<KamataEngine::Model2*>& models, uint32_t textureHandle, const KamataEngine::Vector3& position, KamataEngine::Model2* bulletModel);
 
+	/// <summary>
+	/// 敵の更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// 敵の描画	
+	/// </summary>
+	/// <param name="camera"></param>
 	void Draw(KamataEngine::Camera& camera);
 
 	// 衝突を検知したら呼び出されるコールバック関数
