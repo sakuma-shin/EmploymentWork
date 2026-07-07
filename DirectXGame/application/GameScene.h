@@ -3,6 +3,7 @@
 #include"Model2.h"
 #include "IScene.h"
 #include<vector>
+#include <memory>
 #include"Player.h"
 #include"RailCamera.h"
 #include"skyDome.h"
@@ -68,14 +69,14 @@ private:
 	KamataEngine::Input* input_ = nullptr;
 
 	///*player関連*///
-	Player* player_ = nullptr;
+	std::unique_ptr<Player> player_ = nullptr;
 	KamataEngine::Model2* playerModel_ = nullptr;
-	RailCamera* railCamera_ = nullptr;
+	std::unique_ptr<RailCamera> railCamera_ = nullptr;
 
 	const int domeNum =50;
-	std::vector <SkyDome*> skyDomes_;
+	std::vector<std::unique_ptr<SkyDome>> skyDomes_;
 
-	Door* door_ = nullptr;
+	std::unique_ptr<Door> door_ = nullptr;
 	KamataEngine::Model2* doorModel_ = nullptr;
 
 
@@ -102,7 +103,7 @@ private:
 	uint32_t wallTextureHandle_ = 0u;
 
 	// デバッグカメラ
-	KamataEngine::DebugCamera* debugCamera_ = nullptr;
+	std::unique_ptr<KamataEngine::DebugCamera> debugCamera_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
 

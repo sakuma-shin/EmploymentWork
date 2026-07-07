@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Easing.h"
 #include <cassert>
+#include <memory>
 
 
 using namespace KamataEngine;
@@ -75,10 +76,12 @@ Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
 	}
+	bullets_.clear();
 
 	for (PlayerBulletParticle* particle : inkParticles_) {
 		delete particle;
 	}
+	inkParticles_.clear();
 }
 
 void Player::SetParent(const KamataEngine::WorldTransform* parent) {
@@ -111,7 +114,6 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 		}
 		return false;
 	});
-
 	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
 		if (particle->IsDead()) {
 			delete particle;
@@ -161,11 +163,12 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	if (canShot_) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			// 弾
-			PlayerBullet* newBullet = new PlayerBullet();
+			auto newBullet = std::make_unique<PlayerBullet>();
 			float bulletSpeed = 2.0f;
 			Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
 			newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
-			bullets_.push_back(newBullet);
+			// 所有権は Player が保持する（既存の生ポインタリストへ）
+			bullets_.push_back(newBullet.release());
 			canShot_ = false;
 		}
 	} else {
@@ -256,6 +259,7 @@ void Player::DeathDisappear() {
 
 void Player::GenerateParticle() {
 	for (PlayerBullet* bullet : bullets_) {
+		// Keep raw new for now; will migrate to smart pointers later.
 		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
 		newParticle->Initialize(model_, bullet->GetWorldPosition());
 		inkParticles_.push_back(newParticle);

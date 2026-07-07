@@ -141,11 +141,11 @@ void Enemy::Fire() {
 	Vector3 BulletVelocity = {0.0f, 0.0f, -0.5f};
 
 	// 弾を生成し初期化
-	EnemyBullet* newBullet = new EnemyBullet();
+	auto newBullet = std::make_unique<EnemyBullet>();
 	newBullet->Initialize(bulletModel_, worldTransform_.translation_, BulletVelocity);
 
-	// 弾を登録する
-	gameScene_->AddEnemyBullet(newBullet);
+	// 弾を登録する（所有権は GameScene に譲渡する）
+	gameScene_->AddEnemyBullet(newBullet.release());
 }
 
 void Enemy::PhaseInitialize() {

@@ -5,14 +5,14 @@ using namespace MathUtility;
 
 GameScene::~GameScene() {
 	Model2::StaticFinalize();
-	delete player_;
-	delete railCamera_;
 	delete playerModel_;
 	delete skyDomeModel_;
-	for (int i = 0; i < domeNum; i++) {
-		delete skyDomes_[i];
+	// skyDomes_ and player_/railCamera_/door_/debugCamera_ are managed by unique_ptr now
+	// Delete sky domes (they are still raw pointers)
+	for (SkyDome* dome : skyDomes_) {
+		delete dome;
 	}
-	delete debugCamera_;
+	skyDomes_.clear();
 	delete enemyModel0_;
 	delete enemyModel1_;
 	delete enemyModel2_;
@@ -31,7 +31,7 @@ GameScene::~GameScene() {
 	}
 	walls_.clear();
 
-	delete door_;
+	// door_ is managed by unique_ptr now; do not delete here.
 	delete doorModel_;
 	delete playerBulletModel_;
 	delete EnemyBulletModel_;
@@ -57,11 +57,11 @@ void GameScene::Initialize() {
 	Vector3 railCameraRot = {0.1f, 0.0f, 0.0f};
 
 	/*レールカメラ初期化*/
-	railCamera_ = new RailCamera();
+	railCamera_ = std::make_unique<RailCamera>();
 	railCamera_->Initialize(startPos, railCameraPos, railCameraRot);
 
 	/*プレイヤー関連初期化*/
-	player_ = new Player();
+	player_ = std::make_unique<Player>();
 	playerModel_ = Model2::CreateFromOBJ("player");
 
 	player_->Initialize(playerModel_, playerPosition, railCameraRot);
@@ -86,7 +86,7 @@ void GameScene::Initialize() {
 	// ドア
 	doorModel_ = Model2::CreateFromOBJ("Door");
 
-	door_ = new Door();
+	door_ = std::make_unique<Door>();
 
 	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum) - distance / 2.0f};
 	door_->Initialize(doorModel_, doorPos);
@@ -104,7 +104,7 @@ void GameScene::Initialize() {
 	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
 
 	// デバッグカメラの生成
-	debugCamera_ = new DebugCamera(1280, 720);
+	debugCamera_ = std::make_unique<DebugCamera>(1280, 720);
 
 	LoadEnemyPopData();
 
