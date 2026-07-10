@@ -9,9 +9,7 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 
 	model_ = particleModel;
 
-	for (Particle* particle : particles_) {
-		delete particle;
-	}
+	// clear existing particles (unique_ptr will handle deletion)
 	particles_.clear();
 
 	// パーティクルの数
@@ -49,32 +47,30 @@ void PlayerBulletParticle::Initialize(KamataEngine::Model2* particleModel, const
 		float lifeTime = distribution_(randomEngine_) * 0.5f * (kMaxLife - kMinLife) + 0.5f * (kMaxLife + kMinLife);
 
 		// パーティクルを生成
-		Particle* newParticle = new Particle();
+		auto newParticle = std::make_unique<Particle>();
 		newParticle->Initialize(emitterPosition, randomVelocity, lifeTime);
 
-		particles_.push_back(newParticle);
+		particles_.push_back(std::move(newParticle));
 	}
 }
 
 void PlayerBulletParticle::Update() {
 	// 死亡したパーティクルを削除
-	particles_.remove_if([](Particle* particle) { return particle->IsDead(); });
+	particles_.remove_if([](const std::unique_ptr<Particle>& particle) { return particle->IsDead(); });
 
 	// パーティクルの更新
-	for (Particle* particle : particles_) {
-		particle->Update();
+	for (const auto& particlePtr : particles_) {
+		particlePtr->Update();
 	}
 }
 
 void PlayerBulletParticle::Draw(Camera& camera) {
 	// パーティクルごとの Draw を実行
-	for (Particle* particle : particles_) {
-		particle->Draw(camera);
+	for (const auto& particlePtr : particles_) {
+		particlePtr->Draw(camera);
 	}
 }
 
 PlayerBulletParticle::~PlayerBulletParticle() {
-	for (Particle* particle : particles_) {
-		delete particle;
-	}
+	// particles_ cleared automatically
 }

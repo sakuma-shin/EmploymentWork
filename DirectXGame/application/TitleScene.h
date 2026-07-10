@@ -4,6 +4,7 @@
 #include "Model2.h"
 #include"Easing.h"
 #include"Player.h"
+#include <memory>
 
 /// <summary>
 /// タイトル画面を管理するクラス

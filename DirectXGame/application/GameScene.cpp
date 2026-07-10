@@ -66,7 +66,7 @@ void GameScene::Initialize() {
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	startTextureHandle_ = TextureManager::Load("startFont.png");
-	startSprite_ = Sprite::Create(startTextureHandle_, {0, 296.0f});
+	startSprite_.reset(Sprite::Create(startTextureHandle_, {0, 296.0f}));
 
 	wallModel_.reset(Model2::CreateFromOBJ("bookshelf"));
 	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
