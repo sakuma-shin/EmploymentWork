@@ -14,13 +14,12 @@ void TitleScene::Initialize() {
 	bgGH = TextureManager::Load("titleScene.png");
 	titleFontGH = TextureManager::Load("titleFont.png");
 	hitFontGH = TextureManager::Load("titleFont2.png");
+	bgSprite_.reset(Sprite::Create(bgGH, {0, 0}));
+	titleFontSprite_.reset(Sprite::Create(titleFontGH, {0, 120.0f}));
+	hitFontSprite_.reset(Sprite::Create(hitFontGH, {0, 600.0f}));
 
-	bgSprite_ = Sprite::Create(bgGH, {0, 0});
-	titleFontSprite_ = Sprite::Create(titleFontGH, {0, 120.0f});
-	hitFontSprite_ = Sprite::Create(hitFontGH, {0, 600.0f});
-
-	bookClosedModel_ = Model2::CreateFromOBJ("book1_closed");
-	bookOpenModel_ = Model2::CreateFromOBJ("book1_Open");
+	bookClosedModel_.reset(Model2::CreateFromOBJ("book1_closed"));
+	bookOpenModel_.reset(Model2::CreateFromOBJ("book1_Open"));
 	OpenBookTextureHandle_ = TextureManager::Load("Book1_Open.png");
 
 	fontTimer_ = 0;
@@ -79,10 +78,6 @@ void TitleScene::Draw() {
 }
 
 TitleScene::~TitleScene() {
-	Model2::StaticFinalize(); 
-	delete bgSprite_;
-	delete titleFontSprite_;
-	delete hitFontSprite_;
-	delete bookOpenModel_;
-	delete bookClosedModel_;
+	Model2::StaticFinalize();
+	// unique_ptr will handle resource cleanup
 }

@@ -36,15 +36,15 @@ private:
 	const float kMaxTimer=120.0f;
 	float moveTimer_ = 0;
 
-	KamataEngine::Sprite* bgSprite_ = nullptr;
-	KamataEngine::Sprite* titleFontSprite_ = nullptr;
-	KamataEngine::Sprite* hitFontSprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> bgSprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> titleFontSprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> hitFontSprite_ = nullptr;
 
-	KamataEngine::Model2* bookOpenModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> bookOpenModel_ = nullptr;
 
-	KamataEngine::Model2* bookClosedModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> bookClosedModel_ = nullptr;
 	uint32_t OpenBookTextureHandle_ = 0u;
 
-	KamataEngine::Model2* playerModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> playerModel_ = nullptr;
 
 };
