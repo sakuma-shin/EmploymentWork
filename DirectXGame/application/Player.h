@@ -4,6 +4,7 @@
 #include "PlayerBullet.h"
 #include "PlayerBulletParticle.h"
 #include <list>
+#include <memory>
 
 /// <summary>
 /// プレイヤーを実装するクラス
@@ -31,7 +32,7 @@ public:
 	void OnCollision();
 
 	// 弾リストを取得
-	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() const { return bullets_; }
 
 	// 半径のGetter
 	KamataEngine::Vector3 GetSize() { return size_; }
@@ -71,7 +72,7 @@ private:
 
 	bool isDead_ = false;
 
-	std::list<PlayerBullet*> bullets_;
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 
 	State state_ = State::kPlay;
 
@@ -97,5 +98,5 @@ private:
 	int invTime_ = 0;
 	const int kMaxInvtime = 45;
 
-	std::list<PlayerBulletParticle*> inkParticles_;
+	std::list<std::unique_ptr<PlayerBulletParticle>> inkParticles_;
 };

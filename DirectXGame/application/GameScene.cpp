@@ -5,34 +5,6 @@ using namespace MathUtility;
 
 GameScene::~GameScene() {
 	Model2::StaticFinalize();
-	delete playerModel_;
-	delete skyDomeModel_;
-	// skyDomes_ and player_/railCamera_/door_/debugCamera_ are managed by unique_ptr now
-	// no manual deletion required for those
-	delete enemyModel0_;
-	delete enemyModel1_;
-	delete enemyModel2_;
-	for (Enemy* enemy : enemies_) {
-		delete enemy;
-	}
-	enemies_.clear();
-
-	for (EnemyBullet* enemyBullet : enemyBullets_) {
-		delete enemyBullet;
-	}
-	enemyBullets_.clear();
-
-	for (Wall* wall : walls_) {
-		delete wall;
-	}
-	walls_.clear();
-
-	// door_ is managed by unique_ptr now; do not delete here.
-	delete doorModel_;
-	delete playerBulletModel_;
-	delete EnemyBulletModel_;
-	delete startSprite_;
-	delete clearSprite_;
 }
 
 void GameScene::Initialize() {
@@ -58,45 +30,45 @@ void GameScene::Initialize() {
 
 	/*プレイヤー関連初期化*/
 	player_ = std::make_unique<Player>();
-	playerModel_ = Model2::CreateFromOBJ("player");
+	playerModel_.reset(Model2::CreateFromOBJ("player"));
 
-	player_->Initialize(playerModel_, playerPosition, railCameraRot);
+	player_->Initialize(playerModel_.get(), playerPosition, railCameraRot);
 
-	playerBulletModel_ = Model2::CreateFromOBJ("playerBullet");
+	playerBulletModel_.reset(Model2::CreateFromOBJ("playerBullet"));
 
-	EnemyBulletModel_ = Model2::CreateFromOBJ("enemyBullet");
+	EnemyBulletModel_.reset(Model2::CreateFromOBJ("enemyBullet"));
 
 	// プレイヤーとレールカメラの親子付け
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
-	skyDomeModel_ = Model2::CreateFromOBJ("skyCube");
+	skyDomeModel_.reset(Model2::CreateFromOBJ("skyCube"));
 	skyDomes_.resize(domeNum);
 	const float distance = 30.0f;
 	/*天球*/
 	for (int i = 0; i < skyDomes_.size(); i++) {
-		skyDomes_[i] = new SkyDome();
+		skyDomes_[i] = std::make_unique<SkyDome>();
 		float posZ = distance * i;
-		skyDomes_[i]->Initialize(skyDomeModel_, posZ);
+		skyDomes_[i]->Initialize(skyDomeModel_.get(), posZ);
 	}
 
 	// ドア
-	doorModel_ = Model2::CreateFromOBJ("Door");
+	doorModel_.reset(Model2::CreateFromOBJ("Door"));
 
 	door_ = std::make_unique<Door>();
 
 	Vector3 doorPos = {0.0f, 0.0f, distance * float(domeNum) - distance / 2.0f};
-	door_->Initialize(doorModel_, doorPos);
+	door_->Initialize(doorModel_.get(), doorPos);
 
 	// 敵キャラ関連
-	enemyModel0_ = Model2::CreateFromOBJ("enemy0");
-	enemyModel1_ = Model2::CreateFromOBJ("enemy1");
-	enemyModel2_ = Model2::CreateFromOBJ("enemy2");
+	enemyModel0_.reset(Model2::CreateFromOBJ("enemy0"));
+	enemyModel1_.reset(Model2::CreateFromOBJ("enemy1"));
+	enemyModel2_.reset(Model2::CreateFromOBJ("enemy2"));
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	startTextureHandle_ = TextureManager::Load("startFont.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, {0, 296.0f});
 
-	wallModel_ = Model2::CreateFromOBJ("bookshelf");
+	wallModel_.reset(Model2::CreateFromOBJ("bookshelf"));
 	wallTextureHandle_ = TextureManager::Load("bookshelf.png");
 
 	// デバッグカメラの生成
@@ -110,7 +82,7 @@ void GameScene::Initialize() {
 	clearTimer_ = 120;
 	clearTextureHandle_ = TextureManager::Load("white1x1.png");
 	isClear = false;
-	clearSprite_ = Sprite::Create(clearTextureHandle_, {});
+	clearSprite_.reset(Sprite::Create(clearTextureHandle_, {}));
 
 	lifeTextureHandle_ = TextureManager::Load("life.png");
 
@@ -123,7 +95,7 @@ void GameScene::Initialize() {
 	for (int i = 0; i < lifeSprites_.size(); i++) {
 		lifePos[i] = {36.0f, 36.0f + i * 64.0f};
 
-		lifeSprites_[i] = Sprite::Create(lifeTextureHandle_, lifePos[i]);
+		lifeSprites_[i].reset(Sprite::Create(lifeTextureHandle_, lifePos[i]));
 		lifeSprites_[i]->SetTextureRect({}, {64.0f, 64.0f});
 		lifeSprites_[i]->SetSize(lifeSize);
 	}
@@ -164,16 +136,16 @@ void GameScene::Draw() {
 
 	player_->Draw(camera_);
 
-	for (Enemy* enemy : enemies_) {
-		enemy->Draw(camera_);
+	for (auto& enemyPtr : enemies_) {
+		enemyPtr->Draw(camera_);
 	}
 
-	for (EnemyBullet* bullet : enemyBullets_) {
-		bullet->Draw(camera_);
+	for (auto& bulletPtr : enemyBullets_) {
+		bulletPtr->Draw(camera_);
 	}
 
-	for (Wall* wall : walls_) {
-		wall->Draw(camera_);
+	for (auto& wallPtr : walls_) {
+		wallPtr->Draw(camera_);
 	}
 
 	Model2::PostDraw();
@@ -186,8 +158,8 @@ void GameScene::Draw() {
 		}
 	}
 
-	for (Sprite* sprite : lifeSprites_) {
-		sprite->Draw();
+	for (auto& spritePtr : lifeSprites_) {
+		spritePtr->Draw();
 	}
 
 	if (isClear) {
@@ -197,9 +169,9 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 }
 
-void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+void GameScene::AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet) {
 	// リストに登録する
-	enemyBullets_.push_back(enemyBullet);
+	enemyBullets_.push_back(std::move(enemyBullet));
 }
 
 void GameScene::LoadEnemyPopData() {
@@ -351,26 +323,26 @@ void GameScene::SpawnEnemy(Vector3 spawnPos) {
 
 	// 敵生成時
 	std::vector<KamataEngine::Model2*> enemyModels;
-	enemyModels.push_back(enemyModel0_);
-	enemyModels.push_back(enemyModel1_);
-	enemyModels.push_back(enemyModel2_);
+	enemyModels.push_back(enemyModel0_.get());
+	enemyModels.push_back(enemyModel1_.get());
+	enemyModels.push_back(enemyModel2_.get());
 	// 敵キャラ初期化
-	Enemy* newEnemy = new Enemy();
-	newEnemy->Initialize(enemyModels, enemyTextureHandle_, spawnPos, EnemyBulletModel_);
+	auto newEnemy = std::make_unique<Enemy>();
+	newEnemy->Initialize(enemyModels, enemyTextureHandle_, spawnPos, EnemyBulletModel_.get());
 
 	// 敵キャラにゲームシーンを渡す
 	newEnemy->SetGameScene(this);
 
 	// 敵キャラに自キャラのアドレスを渡す
-	newEnemy->SetPlayer(player_);
+	newEnemy->SetPlayer(player_.get());
 
-	enemies_.push_back(newEnemy);
+	enemies_.push_back(std::move(newEnemy));
 }
 
 void GameScene::SpawnWall(KamataEngine::Vector3 spawnPos, KamataEngine::Vector3 spawnScale) {
-	Wall* newWall = new Wall();
-	newWall->Initialize(wallModel_, spawnPos, spawnScale, wallTextureHandle_);
-	walls_.push_back(newWall);
+	auto newWall = std::make_unique<Wall>();
+	newWall->Initialize(wallModel_.get(), spawnPos, spawnScale, wallTextureHandle_);
+	walls_.push_back(std::move(newWall));
 }
 
 void GameScene::CheckAllCollisions() {
@@ -383,10 +355,10 @@ void GameScene::CheckAllCollisions() {
 	Vector3 sizeA, sizeB;
 
 	// 自弾リストの取得
-	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	const auto& playerBullets = player_->GetBullets();
 
 	// 敵弾リストの取得
-	const std::list<EnemyBullet*>& enemyBullets = GetBullets();
+	const auto& enemyBullets = GetBullets();
 
 #pragma region 自キャラと敵弾の当たり判定
 	// 自キャラの座標
@@ -420,14 +392,16 @@ void GameScene::CheckAllCollisions() {
 #pragma region 自弾と敵キャラの当たり判定
 
 	// 敵のワールド座標を取得
-	for (Enemy* enemy : enemies_) {
+	for (auto& enemyPtr : enemies_) {
+		Enemy* enemy = enemyPtr.get();
 		if (enemy->GetPhase() == Enemy::Phase::Approach) {
 			posA = enemy->GetWorldPosition();
 			// 敵キャラの半径を取得
 			sizeA = enemy->GetSize();
 
 			// 自キャラと敵弾全ての当たり判定
-			for (PlayerBullet* bullet : playerBullets) {
+			for (const auto& bulletPtr : playerBullets) {
+				PlayerBullet* bullet = bulletPtr.get();
 				// 自弾の座標
 				posB = bullet->GetWorldPosition();
 
@@ -452,9 +426,10 @@ void GameScene::CheckAllCollisions() {
 
 	// 自キャラと敵弾全ての当たり判定
 	for (PlayerBullet* playerBullet : playerBullets) {
-		for (EnemyBullet* enemyBullet : enemyBullets) {
-			// 敵弾の座標
-			posA = enemyBullet->GetWorldPosition();
+			for (const auto& enemyBulletPtr : enemyBullets) {
+				EnemyBullet* enemyBullet = enemyBulletPtr.get();
+				// 敵弾の座標
+				posA = enemyBullet->GetWorldPosition();
 			// 自弾の座標
 			posB = playerBullet->GetWorldPosition();
 
@@ -539,16 +514,17 @@ void GameScene::CheckAllCollisions() {
 #pragma endregion
 
 #pragma region 自弾と壁の当たり判定
-	for (PlayerBullet* playerBullet : playerBullets) {
+	for (const auto& playerBulletPtr : playerBullets) {
+		PlayerBullet* playerBullet = playerBulletPtr.get();
 		posA = playerBullet->GetWorldPosition();
 		radiusA = playerBullet->GetRadius();
 
-		for (Wall* wall : walls_) {
+		for (const auto& wallPtr : walls_) {
 			// 壁の座標
-			posB = wall->GetWorldPosition();
+			posB = wallPtr->GetWorldPosition();
 
 			// 壁の半径を取得
-			sizeB = wall->GetSize();
+			sizeB = wallPtr->GetSize();
 
 			// 球と球の衝突判定
 			if (IsCollisionAABBtoSphere(posB, sizeB, posA, radiusA)) {
@@ -615,12 +591,8 @@ void GameScene::PlayUpdate() {
 		camera_.TransferMatrix();
 	}
 
-	enemies_.remove_if([](Enemy* enemy) {
-		if (enemy->IsDead()) {
-			delete enemy;
-			return true;
-		}
-		return false;
+	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
+		return enemy->IsDead();
 	});
 
 	Vector3 playerPos = player_->GetWorldPosition();
@@ -635,37 +607,29 @@ void GameScene::PlayUpdate() {
 		}
 	}
 	// デスフラグが立った弾を削除
-	enemyBullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
+	enemyBullets_.remove_if([](const std::unique_ptr<EnemyBullet>& bullet) {
+		return bullet->IsDead();
 	});
 
 	// 弾の更新
-	for (EnemyBullet* bullet : enemyBullets_) {
+	for (auto& bullet : enemyBullets_) {
 		bullet->Update();
 	}
 
 	UpdateEnemyPopCommands();
 
 	// 壁のデスフラグ処理を追加
-	walls_.remove_if([](Wall* wall) {
-		if (wall->IsDead()) {
-			delete wall;
-			return true;
-		}
-		return false;
+	walls_.remove_if([](const std::unique_ptr<Wall>& wall) {
+		return wall->IsDead();
 	});
 
 	// 壁の更新
-	for (Wall* wall : walls_) {
-		wall->Update();
-		Vector3 posB = wall->GetWorldPosition();
+	for (auto& wallPtr : walls_) {
+		wallPtr->Update();
+		Vector3 posB = wallPtr->GetWorldPosition();
 
 		if (playerPos.z >= posB.z + 20.0f) {
-			wall->OnCollision();
+			wallPtr->OnCollision();
 		}
 	}
 

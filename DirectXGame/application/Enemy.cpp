@@ -145,7 +145,7 @@ void Enemy::Fire() {
 	newBullet->Initialize(bulletModel_, worldTransform_.translation_, BulletVelocity);
 
 	// 弾を登録する（所有権は GameScene に譲渡する）
-	gameScene_->AddEnemyBullet(newBullet.release());
+	gameScene_->AddEnemyBullet(std::move(newBullet));
 }
 
 void Enemy::PhaseInitialize() {

@@ -27,10 +27,10 @@ public:
 	//<summary>
 	// 敵弾を追加する
 	//</summary>
-	void AddEnemyBullet(EnemyBullet* enemyBullet);
+	void AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet);
 
 	// 弾リストを取得
-	const std::list<EnemyBullet*>& GetBullets() const { return enemyBullets_; }
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() const { return enemyBullets_; }
 
 	//<summary>
 	// 敵発生データの読み込み
@@ -70,7 +70,7 @@ private:
 
 	///*player関連*///
 	std::unique_ptr<Player> player_ = nullptr;
-	KamataEngine::Model2* playerModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> playerModel_ = nullptr;
 	std::unique_ptr<RailCamera> railCamera_ = nullptr;
 
 	const int domeNum =50;
@@ -81,15 +81,15 @@ private:
 
 
 	///*enemy関連*///
-	std::list<Enemy*> enemies_;
+	std::list<std::unique_ptr<Enemy>> enemies_;
 	uint32_t enemyTextureHandle_ = 0u;
-	KamataEngine::Model2* enemyModel0_ = nullptr;
-	KamataEngine::Model2* enemyModel1_ = nullptr;
-	KamataEngine::Model2* enemyModel2_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> enemyModel0_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> enemyModel1_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> enemyModel2_ = nullptr;
 
-	KamataEngine::Model2* skyDomeModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> skyDomeModel_ = nullptr;
 
-	std::list<EnemyBullet*> enemyBullets_;
+	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
 
 	// 敵発生コマンド
 	std::stringstream enemyPopCommands;
@@ -98,8 +98,8 @@ private:
 	bool isSpawn_ = false;
 
 	// 壁
-	std::list<Wall*> walls_;
-	KamataEngine::Model2* wallModel_ = nullptr;
+	std::list<std::unique_ptr<Wall>> walls_;
+	std::unique_ptr<KamataEngine::Model2> wallModel_ = nullptr;
 	uint32_t wallTextureHandle_ = 0u;
 
 	// デバッグカメラ
@@ -115,18 +115,18 @@ private:
 	Phase phase_ = Phase::START;
 
 	uint32_t startTextureHandle_ = 0u;
-	KamataEngine::Sprite* startSprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> startSprite_ = nullptr;
 
 	uint32_t clearTextureHandle_ = 0u;
 	int clearTimer_ = 0;
-	KamataEngine::Sprite* clearSprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> clearSprite_ = nullptr;
 
-	KamataEngine::Model2* playerBulletModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> playerBulletModel_ = nullptr;
 
-	KamataEngine::Model2* EnemyBulletModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> EnemyBulletModel_ = nullptr;
 
 	bool isClear = false;
 
 	uint32_t lifeTextureHandle_ = 0u;
-	std::vector<Sprite*> lifeSprites_;
+	std::vector<std::unique_ptr<Sprite>> lifeSprites_;
 };

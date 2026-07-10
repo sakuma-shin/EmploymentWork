@@ -60,27 +60,20 @@ void Player::Update(KamataEngine::Model2* model) {
 }
 
 void Player::Draw(KamataEngine::Camera& camera) {
-
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Draw(camera);
+	for (const auto& bulletPtr : bullets_) {
+		bulletPtr->Draw(camera);
 	}
 
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		particle->Draw(camera);
+	for (const auto& particlePtr : inkParticles_) {
+		particlePtr->Draw(camera);
 	}
 
 	model_->Draw(worldTransform_, camera, &color_);
 }
 
 Player::~Player() {
-	for (PlayerBullet* bullet : bullets_) {
-		delete bullet;
-	}
+	// unique_ptr containers automatically clean up
 	bullets_.clear();
-
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		delete particle;
-	}
 	inkParticles_.clear();
 }
 
@@ -107,19 +100,11 @@ void Player::OnCollision() {
 
 void Player::PlayUpdate(KamataEngine::Model2* model) {
 	// デスフラグが立った弾を削除
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
+	bullets_.remove_if([](const std::unique_ptr<PlayerBullet>& bullet) {
+		return bullet->IsDead();
 	});
-	inkParticles_.remove_if([](PlayerBulletParticle* particle) {
-		if (particle->IsDead()) {
-			delete particle;
-			return true;
-		}
-		return false;
+	inkParticles_.remove_if([](const std::unique_ptr<PlayerBulletParticle>& particle) {
+		return particle->IsDead();
 	});
 
 	const float kSpeed = 0.5f;
@@ -167,8 +152,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 			float bulletSpeed = 2.0f;
 			Vector3 bulletVelocity = {0.0f, 0.0f, bulletSpeed};
 			newBullet->Initialize(model, GetWorldPosition(), bulletVelocity);
-			// 所有権は Player が保持する（既存の生ポインタリストへ）
-			bullets_.push_back(newBullet.release());
+			// 所有権は Player が保持する
+			bullets_.push_back(std::move(newBullet));
 			canShot_ = false;
 		}
 	} else {
@@ -180,8 +165,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	}
 
 	// 弾の更新
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Update();
+	for (const auto& bulletPtr : bullets_) {
+		bulletPtr->Update();
 	}
 
 	if (life <= 0) {
@@ -207,8 +192,8 @@ void Player::PlayUpdate(KamataEngine::Model2* model) {
 	color_.SetColor({color, color, color, alpha});
 
 	// particleの更新
-	for (PlayerBulletParticle* particle : inkParticles_) {
-		particle->Update();
+	for (const auto& particlePtr : inkParticles_) {
+		particlePtr->Update();
 	}
 }
 
@@ -258,10 +243,10 @@ void Player::DeathDisappear() {
 }
 
 void Player::GenerateParticle() {
-	for (PlayerBullet* bullet : bullets_) {
-		// Keep raw new for now; will migrate to smart pointers later.
-		PlayerBulletParticle* newParticle = new PlayerBulletParticle();
+	for (const auto& bulletPtr : bullets_) {
+		PlayerBullet* bullet = bulletPtr.get();
+		auto newParticle = std::make_unique<PlayerBulletParticle>();
 		newParticle->Initialize(model_, bullet->GetWorldPosition());
-		inkParticles_.push_back(newParticle);
+		inkParticles_.push_back(std::move(newParticle));
 	}
 }
