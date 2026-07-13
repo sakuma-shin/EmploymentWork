@@ -2,6 +2,7 @@
 #include "IScene.h"
 #include "KamataEngine.h"
 #include "Model2.h"
+#include <memory>
 
 /// <summary>
 /// 結果画面を管理するクラス
@@ -22,6 +23,6 @@ private:
 
 	KamataEngine::Input* input_ = nullptr;
 
-	KamataEngine::Sprite* sprite_ = nullptr;
+	std::unique_ptr<KamataEngine::Sprite> sprite_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 };

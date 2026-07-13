@@ -6,7 +6,8 @@ using namespace KamataEngine;
 using namespace MathUtility;
 
 void Particle::Initialize(const Vector3& position, const Vector3& velocity, float lifeTime) {
-	model_ = Model2::CreateFromOBJ("playerBullet");
+	// Model2 instance ownership transferred to unique_ptr to avoid memory leak
+	model_.reset(Model2::CreateFromOBJ("playerBullet"));
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;

@@ -3,6 +3,7 @@
 #include"Model2.h"
 #include <list>
 #include <random>
+#include <memory>
 
 /// <summary>
 // Particleクラスは単一のパーティクルを表す
@@ -23,7 +24,7 @@ public:
 
 private:
 	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::Model2* model_ = nullptr; // パーティクル専用のモデル（丸など）
+	std::unique_ptr<KamataEngine::Model2> model_ = nullptr; // パーティクル専用のモデル（丸など）
 	KamataEngine::Vector3 velocity_ = {};
 
 	KamataEngine::ObjectColor color_;

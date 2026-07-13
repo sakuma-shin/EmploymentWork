@@ -12,7 +12,7 @@ void ResultScene::Initialize() {
 
 	textureHandle_ = TextureManager::Load("clearScene.png");
 
-	sprite_ = Sprite::Create(textureHandle_, {});
+	sprite_ = std::unique_ptr<Sprite>(Sprite::Create(textureHandle_, {}));
 }
 
 void ResultScene::Update() {
@@ -42,7 +42,8 @@ void ResultScene::Draw() {
 }
 
 ResultScene::~ResultScene() { 
-	delete sprite_;
-	Model2::StaticFinalize();}
+	// sprite_ is managed by std::unique_ptr and will be released automatically
+	Model2::StaticFinalize();
+}
 
 
