@@ -2,6 +2,8 @@
 #include"Particle.h"
 #include"KamataEngine.h"
 #include"Model2.h"
+#include <list>
+#include <memory>
 
 /// <summary>
 /// パーティクルクラスから派生した、プレイヤーの弾が消滅したときに発生するパーティクルを管理するクラス
@@ -22,8 +24,8 @@ public:
 
 	~PlayerBulletParticle();
 
-	private:
-	std::list<Particle*> particles_;
+private:
+	std::list<std::unique_ptr<Particle>> particles_;
 	KamataEngine::Model2* model_ = nullptr;
 
 	// ランダム生成用

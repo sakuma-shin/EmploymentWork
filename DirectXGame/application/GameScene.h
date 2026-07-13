@@ -77,7 +77,7 @@ private:
 	std::vector<std::unique_ptr<SkyDome>> skyDomes_;
 
 	std::unique_ptr<Door> door_ = nullptr;
-	KamataEngine::Model2* doorModel_ = nullptr;
+	std::unique_ptr<KamataEngine::Model2> doorModel_ = nullptr;
 
 
 	///*enemy関連*///
