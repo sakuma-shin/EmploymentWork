@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 namespace KamataEngine {
 
@@ -67,7 +68,7 @@ private:
 	void InitializeGraphicsPipeline();
 
 	// シングルトンインスタンス
-	static ModelCommon2* sInstance_;
+	static std::unique_ptr<ModelCommon2> sInstance_;
 
 	// デスクリプタサイズ
 	UINT descriptorHandleIncrementSize_ = 0u;
@@ -119,7 +120,7 @@ public: // 静的メンバ関数
 	/// 3Dモデル生成
 	/// </summary>
 	/// <returns></returns>
-	static Model2* Create();
+	static std::unique_ptr<Model2> Create();
 
 	/// <summary>
 	/// OBJファイルからメッシュ生成
@@ -127,7 +128,7 @@ public: // 静的メンバ関数
 	/// <param name="modelname">モデル名</param>
 	/// <param name="modelname">エッジ平滑化フラグ</param>
 	/// <returns>生成されたモデル</returns>
-	static Model2* CreateFromOBJ(const std::string& modelname, bool smoothing = false);
+	static std::unique_ptr<Model2> CreateFromOBJ(const std::string& modelname, bool smoothing = false);
 
 	/// <summary>
 	/// 球モデル生成
@@ -135,17 +136,17 @@ public: // 静的メンバ関数
 	/// <param name="divisionVertial">垂直方向（緯度）分割数</param>
 	/// <param name="divisionHorizontal">水平方向（経度）分割数</param>
 	/// <returns>生成されたモデル</returns>
-	static Model2* CreateSphere(uint32_t divisionVertial = 10, uint32_t divisionHorizontal = 10);
+	static std::unique_ptr<Model2> CreateSphere(uint32_t divisionVertial = 10, uint32_t divisionHorizontal = 10);
 
 	/// <summary>
 	//四角形
 	/// </summary>
-	static Model2* CreateSquare(uint32_t num);
+	static std::unique_ptr<Model2> CreateSquare(uint32_t num);
 
 	/// <summary>
 	// 
 	/// </summary>
-	static Model2* CreateRing(uint32_t divisionNum);
+	static std::unique_ptr<Model2> CreateRing(uint32_t divisionNum);
 
 	/// <summary>
 	/// 描画前処理

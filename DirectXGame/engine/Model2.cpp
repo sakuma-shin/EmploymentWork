@@ -27,31 +27,31 @@ namespace KamataEngine {
 /// </summary>
 const char* Model2::kBaseDirectory = "Resources/";
 const char* Model2::kDefaultModelName = "cube";
-ModelCommon2* ModelCommon2::sInstance_ = nullptr;
+std::unique_ptr<ModelCommon2> ModelCommon2::sInstance_ = nullptr;
 
 void Model2::StaticInitialize() { ModelCommon2::GetInstance()->Initialize(); }
 
 void Model2::StaticFinalize() { ModelCommon2::GetInstance()->Terminate(); }
 
-Model2* Model2::Create() {
+std::unique_ptr<Model2> Model2::Create() {
 	// メモリ確保
-	Model2* instance = new Model2;
+	auto instance = std::make_unique<Model2>();
 	instance->InitializeFromFile(kDefaultModelName, false);
 
 	return instance;
 }
 
-Model2* Model2::CreateFromOBJ(const std::string& modelname, bool smoothing) {
+std::unique_ptr<Model2> Model2::CreateFromOBJ(const std::string& modelname, bool smoothing) {
 	// メモリ確保
-	Model2* instance = new Model2;
+	auto instance = std::make_unique<Model2>();
 	instance->InitializeFromFile(modelname, smoothing);
 
 	return instance;
 }
 
-Model2* Model2::CreateSphere(uint32_t divisionVertial, uint32_t divisionHorizontal) {
+std::unique_ptr<Model2> Model2::CreateSphere(uint32_t divisionVertial, uint32_t divisionHorizontal) {
 	// メモリ確保
-	Model2* instance = new Model2;
+	auto instance = std::make_unique<Model2>();
 	std::vector<Mesh::VertexPosNormalUv> vertices;
 	std::vector<uint32_t> indices;
 
@@ -131,8 +131,8 @@ Model2* Model2::CreateSphere(uint32_t divisionVertial, uint32_t divisionHorizont
 	return instance;
 }
 
-Model2* Model2::CreateSquare(uint32_t num) {
-	Model2* instance = new Model2;
+std::unique_ptr<Model2> Model2::CreateSquare(uint32_t num) {
+	auto instance = std::make_unique<Model2>();
 	std::vector<Mesh::VertexPosNormalUv> vertices;
 	std::vector<uint32_t> indices;
 
@@ -177,7 +177,7 @@ Model2* Model2::CreateSquare(uint32_t num) {
 	return instance;
 }
 
-Model2* Model2::CreateRing(uint32_t divisionNum) {
+std::unique_ptr<Model2> Model2::CreateRing(uint32_t divisionNum) {
 	// リングの分割数
 	const uint32_t kRingDivide = divisionNum;
 	// 外の半径
@@ -187,7 +187,7 @@ Model2* Model2::CreateRing(uint32_t divisionNum) {
 
 	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
 
-	Model2* instance = new Model2;
+	auto instance = std::make_unique<Model2>();
 	std::vector<Mesh::VertexPosNormalUv> vertices;
 	std::vector<uint32_t> indices;
 
@@ -716,14 +716,13 @@ void Model2::SetAlpha(float alpha) {
 
 ModelCommon2* ModelCommon2::GetInstance() {
 	if (!ModelCommon2::sInstance_) {
-		ModelCommon2::sInstance_ = new ModelCommon2();
+		ModelCommon2::sInstance_ = std::make_unique<ModelCommon2>();
 	}
-	return ModelCommon2::sInstance_;
+	return ModelCommon2::sInstance_.get();
 }
 
 void ModelCommon2::Terminate() {
-	delete sInstance_;
-	sInstance_ = nullptr;
+	ModelCommon2::sInstance_.reset();
 }
 
 void ModelCommon2::Initialize() {

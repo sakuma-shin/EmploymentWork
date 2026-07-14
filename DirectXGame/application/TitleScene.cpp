@@ -18,8 +18,8 @@ void TitleScene::Initialize() {
 	titleFontSprite_.reset(Sprite::Create(titleFontGH, {0, 120.0f}));
 	hitFontSprite_.reset(Sprite::Create(hitFontGH, {0, 600.0f}));
 
-	bookClosedModel_.reset(Model2::CreateFromOBJ("book1_closed"));
-	bookOpenModel_.reset(Model2::CreateFromOBJ("book1_Open"));
+	bookClosedModel_ = Model2::CreateFromOBJ("book1_closed");
+	bookOpenModel_ = Model2::CreateFromOBJ("book1_Open");
 	OpenBookTextureHandle_ = TextureManager::Load("Book1_Open.png");
 
 	fontTimer_ = 0;
